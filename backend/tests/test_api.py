@@ -1,0 +1,102 @@
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_health_endpoint():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert data["service"] == "healthcare-agent-backend"
+
+def test_get_hospitals():
+    response = client.get("/api/hospitals?city=Hyderabad")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] > 0
+    assert any("Apollo" in h["name"] for h in data["hospitals"])
+
+def test_get_hospitals_filter_specialty():
+    response = client.get("/api/hospitals?city=Hyderabad&specialty=Cardiology")
+    assert response.status_code == 200
+    data = response.json()
+    for hosp in data["hospitals"]:
+        assert any("cardiology" in s.lower() for s in hosp["specialties"])
+
+def test_post_cost_estimate():
+    payload = {
+        "procedure": "Angioplasty",
+        "city": "Hyderabad",
+        "room_type": "Semi-Private"
+    }
+    response = client.post("/api/cost-estimate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["procedure"] == "Angioplasty (PTCA with Stenting)"
+    assert data["indicative_range_min"] > 0
+    assert data["indicative_range_max"] >= data["indicative_range_min"]
+    assert len(data["covered_under_schemes"]) > 0
+
+def test_get_schemes():
+    response = client.get("/api/schemes")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] >= 4
+    codes = [s["short_code"] for s in data["schemes"]]
+    assert "PM-JAY" in codes
+    assert "AAROGYASRI" in codes
+
+def test_appointment_confirm_requires_consent():
+    payload = {
+        "hospital_id": "hosp-hyd-01",
+        "patient_name": "Test Patient",
+        "patient_phone": "+91 9876543210",
+        "specialty": "Cardiology",
+        "preferred_date": "2026-11-10",
+        "user_confirmed": False
+    }
+    response = client.post("/api/appointments/confirm", json=payload)
+    assert response.status_code == 400
+    assert "explicit user confirmation" in response.json()["detail"].lower()
+
+def test_appointment_confirm_success():
+    payload = {
+        "hospital_id": "hosp-hyd-01",
+        "patient_name": "Test Patient",
+        "patient_phone": "+91 9876543210",
+        "specialty": "Cardiology",
+        "preferred_date": "2026-11-10",
+        "user_confirmed": True
+    }
+    response = client.post("/api/appointments/confirm", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "simulated_confirmed"
+    assert data["is_simulated"] is True
+    assert "SIM-APT-" in data["confirmation_id"]
+
+def test_chat_endpoint_hospital_discovery():
+    payload = {
+        "message": "Find affordable cardiology hospitals in Hyderabad",
+        "session_id": "test-session"
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["hospitals"]) > 0
+    assert any("cardiology" in s.lower() for s in data["hospitals"][0]["specialties"])
+    assert data["data_mode"] == "mock"
+
+def test_chat_endpoint_emergency_intercept():
+    payload = {
+        "message": "Patient having severe chest pain and cannot breathe",
+        "session_id": "test-session"
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["emergency_detected"] is True
+    assert "108" in data["answer"]
+    assert len(data["hospitals"]) == 0

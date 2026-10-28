@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+backend/.venv/
+venv/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.pytest_cache
+.coverage
+htmlcov/
+
+# Production build outputs
+dist/
+dist-ssr/
+build/
+
+# Environment variables & secrets (NEVER commit secrets or patient data)
+.env
+.env.*
+!.env.example
+!.env.development
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
