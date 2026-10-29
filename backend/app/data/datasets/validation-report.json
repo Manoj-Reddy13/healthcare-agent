@@ -1,0 +1,62 @@
+{
+  "scope": "Pilot structural checks only; not independent source verification or full specification validation",
+  "counts": {
+    "cities": 2,
+    "specialties": 0,
+    "treatments": 0,
+    "treatment_aliases": 0,
+    "hospitals": 2,
+    "hospital_specialties": 0,
+    "hospital_accreditations": 0,
+    "prices": 0,
+    "price_components": 0,
+    "room_adjustments": 0,
+    "schemes": 0,
+    "scheme_locations": 0,
+    "scheme_treatments": 0,
+    "hospital_schemes": 0,
+    "scheme_rule_groups": 0,
+    "scheme_rules": 0,
+    "sources": 4,
+    "evidence": 12
+  },
+  "checks": [
+    {
+      "check": "All entity arrays present",
+      "passed": true
+    },
+    {
+      "check": "hospitals IDs unique",
+      "passed": true
+    },
+    {
+      "check": "cities IDs unique",
+      "passed": true
+    },
+    {
+      "check": "sources IDs unique",
+      "passed": true
+    },
+    {
+      "check": "evidence IDs unique",
+      "passed": true
+    },
+    {
+      "check": "Hospital city references resolve",
+      "passed": true
+    },
+    {
+      "check": "Evidence sources resolve",
+      "passed": true
+    },
+    {
+      "check": "Evidence hospital references resolve",
+      "passed": true
+    },
+    {
+      "check": "Every sourced hospital display claim has evidence",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

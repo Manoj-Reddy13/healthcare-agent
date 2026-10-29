@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "source_id": "source-apollo-knee-20261029",
+      "url": "https://www.apollo247.com/radiology-details/mri-knee-joint-single-c-hyderabad",
+      "publisher": "Apollo 24|7",
+      "title": "Hyderabad single-knee MRI listing",
+      "source_type": "official_provider",
+      "accessed_on": "2026-10-29",
+      "published_on": null,
+      "locator": "Available at section"
+    },
+    {
+      "source_id": "source-pmjay-parliament-20260206",
+      "url": "https://sansad.in/getFile/loksabhaquestions/annex/187/AU1224_s8ptc6.pdf?source=pqals",
+      "publisher": "Ministry of Health and Family Welfare / Lok Sabha",
+      "title": "Beneficiary selection answer, question 1224",
+      "source_type": "official_government",
+      "published_on": "2026-02-06",
+      "accessed_on": "2026-10-29",
+      "locator": "Answer (a) and (b), PDF pages 1\u20132"
+    }
+  ],
+  "products": [
+    {
+      "product_id": "apollo-single-knee-mri",
+      "source_label": "MRI Knee Unilateral",
+      "family": "MRI",
+      "body_region": "knee",
+      "laterality": "single",
+      "contrast": null,
+      "exact_treatment_id": null
+    }
+  ],
+  "price_observations": [
+    {
+      "observation_id": "published-knee-hyd-001",
+      "provider_name": "Apollo Medical Centre Kondapur",
+      "provider_type": "clinic",
+      "city": "Hyderabad",
+      "product_id": "apollo-single-knee-mri",
+      "amount_inr": "7000.00",
+      "currency": "INR",
+      "source_id": "source-apollo-knee-20261029",
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "contrast": null,
+      "sedation": null,
+      "inclusions": null,
+      "exclusions": null,
+      "mapped_hospital_id": null,
+      "estimator_eligible": false,
+      "status": "published_observation_only",
+      "limitations": [
+        "Scan protocol and package scope require confirmation",
+        "Tariff validity interval not supplied",
+        "Not mapped to either pilot hospital"
+      ]
+    },
+    {
+      "observation_id": "published-knee-hyd-002",
+      "provider_name": "Apollo Clinic, Nizmapet",
+      "provider_type": "clinic",
+      "city": "Hyderabad",
+      "product_id": "apollo-single-knee-mri",
+      "amount_inr": "7100.00",
+      "currency": "INR",
+      "source_id": "source-apollo-knee-20261029",
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "contrast": null,
+      "sedation": null,
+      "inclusions": null,
+      "exclusions": null,
+      "mapped_hospital_id": null,
+      "estimator_eligible": false,
+      "status": "published_observation_only",
+      "limitations": [
+        "Scan protocol and package scope require confirmation",
+        "Tariff validity interval not supplied",
+        "Not mapped to either pilot hospital"
+      ]
+    },
+    {
+      "observation_id": "published-knee-hyd-003",
+      "provider_name": "Apollo Clinic Chanda Nagar",
+      "provider_type": "clinic",
+      "city": "Hyderabad",
+      "product_id": "apollo-single-knee-mri",
+      "amount_inr": "7100.00",
+      "currency": "INR",
+      "source_id": "source-apollo-knee-20261029",
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "contrast": null,
+      "sedation": null,
+      "inclusions": null,
+      "exclusions": null,
+      "mapped_hospital_id": null,
+      "estimator_eligible": false,
+      "status": "published_observation_only",
+      "limitations": [
+        "Scan protocol and package scope require confirmation",
+        "Tariff validity interval not supplied",
+        "Not mapped to either pilot hospital"
+      ]
+    }
+  ],
+  "policy_facts": [
+    {
+      "fact_id": "pmjay-selection-2026",
+      "scheme": "PM-JAY",
+      "source_id": "source-pmjay-parliament-20260206",
+      "source_as_of": "2026-02-06",
+      "status": "dated_official_snapshot",
+      "claims": {
+        "senior_path_minimum_age": 70,
+        "senior_path_income_independent": true,
+        "other_paths_exist": true
+      },
+      "other_paths_summary": "The answer describes SECC-derived and state beneficiary databases and an expansion covering ASHA and Anganwadi workers/helpers and their families.",
+      "limitations": [
+        "Age screening is only for the senior pathway",
+        "Enrollment and current operational conditions require confirmation",
+        "No hospital participation or treatment entitlement inferred"
+      ]
+    }
+  ],
+  "notes": [
+    "Published observations are not reviewed treatment-cost estimates.",
+    "No code-generated validity end dates or clinical equivalence assumptions are used.",
+    "All source claims remain dated; collection date does not establish policy currency."
+  ]
+}

@@ -1,0 +1,518 @@
+{
+  "version": 1,
+  "data_mode": "mock",
+  "provenance": "Hospital, treatment and scheme display fixtures copied from the original repository. Demo rules and private plans are simulated. No record is verified real data.",
+  "hospitals": [
+    {
+      "id": "hosp-hyd-01",
+      "name": "Apollo Health City, Jubilee Hills",
+      "city": "Hyderabad",
+      "address": "Road No 72, Opposite Bharatiya Vidya Bhavan, Jubilee Hills, Hyderabad - 500033",
+      "phone": "+91 40 2360 7777",
+      "specialties": [
+        "Cardiology",
+        "Neurology",
+        "Oncology",
+        "Orthopedics",
+        "Emergency Medicine"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 1000.0,
+        "Angioplasty": 175000.0,
+        "Knee Replacement": 195000.0,
+        "Normal Delivery": 65000.0,
+        "Cataract Surgery": 35000.0,
+        "MRI Scan": 8500.0
+      },
+      "rating": 4.7,
+      "distance_km": 4.2,
+      "accepted_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "CGHS"
+      ],
+      "accreditation": [
+        "NABH",
+        "JCI",
+        "NABL"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    },
+    {
+      "id": "hosp-hyd-02",
+      "name": "Nizam's Institute of Medical Sciences (NIMS)",
+      "city": "Hyderabad",
+      "address": "Punjagutta, Hyderabad, Telangana - 500082",
+      "phone": "+91 40 2348 9000",
+      "specialties": [
+        "Cardiology",
+        "Nephrology",
+        "General Medicine",
+        "Oncology",
+        "Orthopedics"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 150.0,
+        "Angioplasty": 65000.0,
+        "Knee Replacement": 85000.0,
+        "Normal Delivery": 12000.0,
+        "Cataract Surgery": 10000.0,
+        "MRI Scan": 3200.0
+      },
+      "rating": 4.4,
+      "distance_km": 3.1,
+      "accepted_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "ESIC",
+        "CGHS"
+      ],
+      "accreditation": [
+        "NABH"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    },
+    {
+      "id": "hosp-hyd-03",
+      "name": "KIMS Hospitals, Secunderabad",
+      "city": "Hyderabad",
+      "address": "1-8-31/1, Minister Road, Krishna Nagar Colony, Begumpet, Secunderabad - 500003",
+      "phone": "+91 40 4488 5000",
+      "specialties": [
+        "Cardiology",
+        "Pulmonology",
+        "Gastroenterology",
+        "Pediatrics",
+        "Orthopedics"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 800.0,
+        "Angioplasty": 140000.0,
+        "Knee Replacement": 160000.0,
+        "Normal Delivery": 50000.0,
+        "Cataract Surgery": 28000.0,
+        "MRI Scan": 7000.0
+      },
+      "rating": 4.5,
+      "distance_km": 6.8,
+      "accepted_schemes": [
+        "Aarogyasri",
+        "CGHS",
+        "ESIC"
+      ],
+      "accreditation": [
+        "NABH",
+        "NABL"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    },
+    {
+      "id": "hosp-hyd-04",
+      "name": "Care Hospitals, Banjara Hills",
+      "city": "Hyderabad",
+      "address": "Road No. 1, Prem Nagar, Banjara Hills, Hyderabad - 500034",
+      "phone": "+91 40 6165 6565",
+      "specialties": [
+        "Cardiology",
+        "Neurology",
+        "Vascular Surgery",
+        "Critical Care"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 900.0,
+        "Angioplasty": 155000.0,
+        "Knee Replacement": 175000.0,
+        "Normal Delivery": 55000.0,
+        "Cataract Surgery": 30000.0,
+        "MRI Scan": 7800.0
+      },
+      "rating": 4.6,
+      "distance_km": 5.0,
+      "accepted_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "CGHS"
+      ],
+      "accreditation": [
+        "NABH"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    },
+    {
+      "id": "hosp-hyd-05",
+      "name": "Gandhi Government General Hospital",
+      "city": "Hyderabad",
+      "address": "Bhoiguda Road, Padmarao Nagar, Secunderabad - 500003",
+      "phone": "+91 40 2750 5566",
+      "specialties": [
+        "General Medicine",
+        "Pediatrics",
+        "Cardiology",
+        "Gynecology",
+        "Orthopedics"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 20.0,
+        "Angioplasty": 30000.0,
+        "Knee Replacement": 45000.0,
+        "Normal Delivery": 0.0,
+        "Cataract Surgery": 0.0,
+        "MRI Scan": 1500.0
+      },
+      "rating": 4.1,
+      "distance_km": 7.5,
+      "accepted_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "ESIC"
+      ],
+      "accreditation": [
+        "NABH"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    },
+    {
+      "id": "hosp-blr-01",
+      "name": "Narayana Health City",
+      "city": "Bengaluru",
+      "address": "258/A, Bommasandra Industrial Area, Anekal Taluk, Bengaluru - 560099",
+      "phone": "+91 80 7122 2222",
+      "specialties": [
+        "Cardiology",
+        "Oncology",
+        "Neurology",
+        "Pediatrics"
+      ],
+      "indicative_costs": {
+        "Doctor Consultation": 700.0,
+        "Angioplasty": 125000.0,
+        "Knee Replacement": 150000.0,
+        "Normal Delivery": 45000.0,
+        "Cataract Surgery": 25000.0,
+        "MRI Scan": 6500.0
+      },
+      "rating": 4.6,
+      "distance_km": 14.5,
+      "accepted_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "CGHS",
+        "ESIC"
+      ],
+      "accreditation": [
+        "NABH",
+        "JCI"
+      ],
+      "verified": false,
+      "data_mode": "mock"
+    }
+  ],
+  "schemes": [
+    {
+      "id": "scheme-pmjay",
+      "name": "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
+      "short_code": "PM-JAY",
+      "category": "Government",
+      "coverage_limit": 500000.0,
+      "eligibility_summary": "ACADEMIC SIMULATION: simplified sample rules, not current official eligibility. Use the official portal for actual eligibility.",
+      "covered_specialties": [
+        "Cardiology",
+        "Cardiothoracic Surgery",
+        "Oncology",
+        "Orthopedics",
+        "Neurosurgery",
+        "General Medicine",
+        "Pediatrics"
+      ],
+      "income_ceiling_inr": null,
+      "official_portal": "https://pmjay.gov.in",
+      "claim_process_summary": "DEMO ONLY: no enrollment, claim or treatment authorization is submitted.",
+      "data_mode": "mock",
+      "demo_rule": {
+        "operator": "OR",
+        "rules": [
+          {
+            "attribute": "age",
+            "operator": "gte",
+            "value": 70
+          },
+          {
+            "attribute": "listed_beneficiary",
+            "operator": "eq",
+            "value": true
+          }
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "scheme-aarogyasri",
+      "name": "Dr. YSR Aarogyasri / Telangana Aarogyasri Health Care Trust",
+      "short_code": "AAROGYASRI",
+      "category": "State",
+      "coverage_limit": 1000000.0,
+      "eligibility_summary": "ACADEMIC SIMULATION: simplified sample rules, not current official eligibility. Use the official portal for actual eligibility.",
+      "covered_specialties": [
+        "Cardiology",
+        "Nephrology",
+        "Oncology",
+        "Polytrauma",
+        "Gynecology",
+        "Pediatrics",
+        "Ophthalmology"
+      ],
+      "income_ceiling_inr": 500000.0,
+      "official_portal": "https://aarogyasri.telangana.gov.in",
+      "claim_process_summary": "DEMO ONLY: no enrollment, claim or treatment authorization is submitted.",
+      "data_mode": "mock",
+      "demo_rule": {
+        "operator": "AND",
+        "rules": [
+          {
+            "attribute": "state",
+            "operator": "in",
+            "value": [
+              "Telangana",
+              "Andhra Pradesh"
+            ]
+          },
+          {
+            "attribute": "food_security_card",
+            "operator": "eq",
+            "value": true
+          },
+          {
+            "attribute": "annual_income_inr",
+            "operator": "lte",
+            "value": 500000
+          }
+        ]
+      },
+      "states": [
+        "Telangana",
+        "Andhra Pradesh"
+      ]
+    },
+    {
+      "id": "scheme-cghs",
+      "name": "Central Government Health Scheme (CGHS)",
+      "short_code": "CGHS",
+      "category": "Social Security",
+      "coverage_limit": 1500000.0,
+      "eligibility_summary": "ACADEMIC SIMULATION: simplified sample rules, not current official eligibility. Use the official portal for actual eligibility.",
+      "covered_specialties": [
+        "Cardiology",
+        "Neurology",
+        "Orthopedics",
+        "Oncology",
+        "Dental",
+        "Ophthalmology",
+        "General Medicine"
+      ],
+      "income_ceiling_inr": null,
+      "official_portal": "https://cghs.nic.in",
+      "claim_process_summary": "DEMO ONLY: no enrollment, claim or treatment authorization is submitted.",
+      "data_mode": "mock",
+      "demo_rule": {
+        "operator": "AND",
+        "rules": [
+          {
+            "attribute": "central_govt_beneficiary",
+            "operator": "eq",
+            "value": true
+          },
+          {
+            "attribute": "membership_active",
+            "operator": "eq",
+            "value": true
+          }
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "scheme-esic",
+      "name": "Employees' State Insurance Scheme (ESIC)",
+      "short_code": "ESIC",
+      "category": "Social Security",
+      "coverage_limit": 1000000.0,
+      "eligibility_summary": "ACADEMIC SIMULATION: simplified sample rules, not current official eligibility. Use the official portal for actual eligibility.",
+      "covered_specialties": [
+        "Cardiology",
+        "Pulmonology",
+        "Orthopedics",
+        "Maternity",
+        "General Surgery",
+        "Dialysis"
+      ],
+      "income_ceiling_inr": 252000.0,
+      "official_portal": "https://esic.gov.in",
+      "claim_process_summary": "DEMO ONLY: no enrollment, claim or treatment authorization is submitted.",
+      "data_mode": "mock",
+      "demo_rule": {
+        "operator": "AND",
+        "rules": [
+          {
+            "attribute": "insured_employee",
+            "operator": "eq",
+            "value": true
+          },
+          {
+            "attribute": "membership_active",
+            "operator": "eq",
+            "value": true
+          }
+        ]
+      },
+      "states": []
+    }
+  ],
+  "treatments": {
+    "angioplasty": {
+      "display_name": "Angioplasty (PTCA with Stenting)",
+      "base_min": 120000,
+      "base_max": 180000,
+      "factors": [
+        "Number and quality tier of drug-eluting stents (DES)",
+        "Duration of post-procedure Coronary Care Unit (CCU) stay",
+        "Complex lesion anatomies requiring intravascular ultrasound (IVUS) or OCT",
+        "Pre-existing conditions like diabetes or chronic kidney disease"
+      ],
+      "covered_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "CGHS",
+        "ESIC"
+      ]
+    },
+    "knee replacement": {
+      "display_name": "Total Knee Replacement (Single Joint)",
+      "base_min": 140000,
+      "base_max": 210000,
+      "factors": [
+        "Implant material (Titanium / Cobalt-Chromium / Oxinium)",
+        "Computer-navigated or robotic-assisted surgery options",
+        "Physiotherapy and rehabilitation duration",
+        "Inpatient length of stay"
+      ],
+      "covered_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "CGHS"
+      ]
+    },
+    "cataract surgery": {
+      "display_name": "Cataract Surgery (Phacoemulsification with IOL)",
+      "base_min": 20000,
+      "base_max": 45000,
+      "factors": [
+        "Intraocular Lens (IOL) type: Monofocal, Toric, or Multifocal/Trifocal",
+        "Femtosecond laser assistance",
+        "Day-care procedure vs overnight monitoring"
+      ],
+      "covered_schemes": [
+        "Ayushman Bharat (PM-JAY)",
+        "Aarogyasri",
+        "CGHS",
+        "ESIC"
+      ]
+    },
+    "normal delivery": {
+      "display_name": "Normal Vaginal Delivery",
+      "base_min": 35000,
+      "base_max": 65000,
+      "factors": [
+        "Epidural analgesia (painless delivery) administration",
+        "Neonatal care and nursery monitoring tier",
+        "Length of maternal stay"
+      ],
+      "covered_schemes": [
+        "Janani Suraksha Yojana",
+        "Aarogyasri",
+        "Ayushman Bharat (PM-JAY)"
+      ]
+    },
+    "mri scan": {
+      "display_name": "MRI Scan (Brain / Spine / Joint)",
+      "base_min": 5500,
+      "base_max": 9500,
+      "factors": [
+        "With or without IV contrast agent",
+        "1.5 Tesla vs 3.0 Tesla high-field scanner resolution",
+        "Number of anatomical regions scanned"
+      ],
+      "covered_schemes": [
+        "CGHS",
+        "ESIC",
+        "Aarogyasri"
+      ]
+    },
+    "doctor consultation": {
+      "display_name": "Specialist / Super-Specialist Doctor Consultation",
+      "base_min": 600,
+      "base_max": 1200,
+      "factors": [
+        "Doctor clinical seniority (Consultant vs Chief Surgeon)",
+        "Institution tier (Trust/Govt vs Multi-Specialty Corporate)",
+        "Follow-up window inclusions"
+      ],
+      "covered_schemes": [
+        "CGHS",
+        "ESIC",
+        "Aarogyasri OPD"
+      ]
+    }
+  },
+  "room_multipliers": {
+    "General Ward": 0.85,
+    "Semi-Private": 1.0,
+    "Private Room": 1.25,
+    "ICU": 1.6
+  },
+  "insurance_products": [
+    {
+      "id": "demo-employer-plan-a",
+      "name": "Fictional Employer Plan A",
+      "hospital_ids": [
+        "hosp-hyd-01",
+        "hosp-hyd-02",
+        "hosp-hyd-03"
+      ],
+      "covered_specialties": [
+        "Cardiology",
+        "Orthopedics",
+        "Oncology"
+      ],
+      "remaining_cover_inr": "200000.00",
+      "copay_percent": 20,
+      "deductible_inr": "10000.00",
+      "data_mode": "mock"
+    },
+    {
+      "id": "demo-family-plan-b",
+      "name": "Fictional Family Plan B",
+      "hospital_ids": [
+        "hosp-hyd-01",
+        "hosp-hyd-02",
+        "hosp-hyd-03",
+        "hosp-hyd-04",
+        "hosp-hyd-05",
+        "hosp-blr-01"
+      ],
+      "covered_specialties": [
+        "Cardiology",
+        "Orthopedics",
+        "Ophthalmology",
+        "Gynecology"
+      ],
+      "remaining_cover_inr": "100000.00",
+      "copay_percent": 10,
+      "deductible_inr": "5000.00",
+      "data_mode": "mock"
+    }
+  ]
+}

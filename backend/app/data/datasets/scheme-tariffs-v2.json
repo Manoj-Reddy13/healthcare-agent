@@ -1,0 +1,77 @@
+{
+  "schema_note": "Separate scheme tariff entity: existing prices schema cannot express accreditation, city tier and ward-independent rates. Do not coerce these records into self-pay prices.",
+  "records": [
+    {
+      "tariff_id": "cghs-ri106-x-non_nabh",
+      "treatment_id": "treatment-mri-knee-single-plain",
+      "scheme_code": "CGHS",
+      "source_code": "RI106",
+      "city_tier": "X",
+      "applicable_city_ids": [
+        "city-hyd",
+        "city-blr"
+      ],
+      "facility_category": "non_nabh",
+      "amount_inr": "2550.00",
+      "currency": "INR",
+      "billing_unit": "per_scan",
+      "ward_policy": "uniform_for_investigations",
+      "valid_from": "2025-10-13",
+      "valid_to": null,
+      "observed_on": "2026-10-29",
+      "source_id": "source-cghs-2025",
+      "locator": "PDF page 24, row 444; city list page 4; ward exception page 2",
+      "provenance_status": "sourced",
+      "release_status": "review_required",
+      "notes": "Scheme tariff only. Not a cash quote or evidence that either pilot hospital accepts CGHS. Facility category must be independently established."
+    },
+    {
+      "tariff_id": "cghs-ri106-x-nabh",
+      "treatment_id": "treatment-mri-knee-single-plain",
+      "scheme_code": "CGHS",
+      "source_code": "RI106",
+      "city_tier": "X",
+      "applicable_city_ids": [
+        "city-hyd",
+        "city-blr"
+      ],
+      "facility_category": "nabh",
+      "amount_inr": "3000.00",
+      "currency": "INR",
+      "billing_unit": "per_scan",
+      "ward_policy": "uniform_for_investigations",
+      "valid_from": "2025-10-13",
+      "valid_to": null,
+      "observed_on": "2026-10-29",
+      "source_id": "source-cghs-2025",
+      "locator": "PDF page 24, row 444; city list page 4; ward exception page 2",
+      "provenance_status": "sourced",
+      "release_status": "review_required",
+      "notes": "Scheme tariff only. Not a cash quote or evidence that either pilot hospital accepts CGHS. Facility category must be independently established."
+    },
+    {
+      "tariff_id": "cghs-ri106-x-super_speciality",
+      "treatment_id": "treatment-mri-knee-single-plain",
+      "scheme_code": "CGHS",
+      "source_code": "RI106",
+      "city_tier": "X",
+      "applicable_city_ids": [
+        "city-hyd",
+        "city-blr"
+      ],
+      "facility_category": "super_speciality",
+      "amount_inr": "3000.00",
+      "currency": "INR",
+      "billing_unit": "per_scan",
+      "ward_policy": "uniform_for_investigations",
+      "valid_from": "2025-10-13",
+      "valid_to": null,
+      "observed_on": "2026-10-29",
+      "source_id": "source-cghs-2025",
+      "locator": "PDF page 24, row 444; city list page 4; ward exception page 2",
+      "provenance_status": "sourced",
+      "release_status": "review_required",
+      "notes": "Scheme tariff only. Not a cash quote or evidence that either pilot hospital accepts CGHS. Facility category must be independently established."
+    }
+  ]
+}

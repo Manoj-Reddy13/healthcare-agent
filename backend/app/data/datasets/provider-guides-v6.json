@@ -1,0 +1,439 @@
+{
+  "version": 1,
+  "collected_on": "2026-10-29",
+  "sources": [
+    {
+      "source_id": "guide-angioplasty",
+      "url": "https://www.yashodahospitals.com/procedure-cost/angioplasty-cost-in-india/",
+      "publisher": "Yashoda Hospitals",
+      "source_kind": "provider_guide",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "guide-coronary",
+      "url": "https://www.yashodahospitals.com/procedure-cost/coronary-angioplasty-cost-in-hyderabad/",
+      "publisher": "Yashoda Hospitals",
+      "source_kind": "provider_guide",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "guide-knee",
+      "url": "https://www.yashodahospitals.com/procedure-cost/knee-replacement-surgery-cost-in-india/",
+      "publisher": "Yashoda Hospitals",
+      "source_kind": "provider_guide",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "guide-cataract",
+      "url": "https://www.yashodahospitals.com/procedure-cost/cataract-surgery-cost-in-india/",
+      "publisher": "Yashoda Hospitals",
+      "source_kind": "provider_guide",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "guide-delivery",
+      "url": "https://www.yashodahospitals.com/procedure-cost/normal-delivery-cost-in-hyderabad/",
+      "publisher": "Yashoda Hospitals",
+      "source_kind": "provider_guide",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "listing-brain-bengaluru",
+      "url": "https://www.apollo247.com/radiology-details/mri-brain-plain-c-bengaluru",
+      "publisher": "Apollo 24|7",
+      "source_kind": "clinic_listing",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    },
+    {
+      "source_id": "cghs-consultation-reference",
+      "url": "https://cdnbbsr.s3waas.gov.in/s32d2ca7eedf739ef4c3800713ec482e1a/uploads/2026/05/2026051571.pdf",
+      "publisher": "Ministry of Health and Family Welfare, circulated by KVS",
+      "source_kind": "scheme_tariff_reference",
+      "accessed_on": "2026-10-29",
+      "published_on": null
+    }
+  ],
+  "records": [
+    {
+      "record_id": "angioplasty-hyd-guide",
+      "source_id": "guide-angioplasty",
+      "treatment_family": "angioplasty",
+      "service_city": "Hyderabad",
+      "minimum_inr": "150000.00",
+      "maximum_inr": "200000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "Broad city guidance; stent specification and quantity not fixed",
+      "source_locator": "City-specific row in cost table",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "coronary-hyd-guide"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "coronary-hyd-guide",
+      "source_id": "guide-coronary",
+      "treatment_family": "angioplasty",
+      "service_city": "Hyderabad",
+      "minimum_inr": "70000.00",
+      "maximum_inr": "400000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "Broader coronary-procedure guidance; not interchangeable with the other guide",
+      "source_locator": "Cost paragraph before treatment table",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "angioplasty-hyd-guide"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "knee-hyd-average-guide",
+      "source_id": "guide-knee",
+      "treatment_family": "knee-replacement",
+      "service_city": "Hyderabad",
+      "minimum_inr": "180000.00",
+      "maximum_inr": "380000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "Average city guidance; laterality and implant not fixed",
+      "source_locator": "Hyderabad average-cost section",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "knee-hyd-total-guide"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "knee-hyd-total-guide",
+      "source_id": "guide-knee",
+      "treatment_family": "knee-replacement",
+      "service_city": "Hyderabad",
+      "minimum_inr": "160000.00",
+      "maximum_inr": "500000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "Total-replacement guidance in a different section; do not merge with average city range",
+      "source_locator": "Total replacement cost paragraph",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "knee-hyd-average-guide"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "cataract-hyd-guide",
+      "source_id": "guide-cataract",
+      "treatment_family": "cataract",
+      "service_city": "Hyderabad",
+      "minimum_inr": "34000.00",
+      "maximum_inr": "34000.00",
+      "currency": "INR",
+      "value_kind": "guide_point",
+      "context": "Published point guidance, not guaranteed quotation; lens and eye count unspecified",
+      "source_locator": "City-specific row in cost table",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "cataract-blr-guide",
+      "source_id": "guide-cataract",
+      "treatment_family": "cataract",
+      "service_city": "Bengaluru",
+      "minimum_inr": "18000.00",
+      "maximum_inr": "180000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "City guidance in provider FAQ, not a particular Bengaluru facility quote",
+      "source_locator": "FAQ about Bangalore prices",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "delivery-hyd-range",
+      "source_id": "guide-delivery",
+      "treatment_family": "delivery",
+      "service_city": "Hyderabad",
+      "minimum_inr": "40000.00",
+      "maximum_inr": "120000.00",
+      "currency": "INR",
+      "value_kind": "guide_range",
+      "context": "Normal-delivery guidance; newborn care and complications not specified",
+      "source_locator": "Cost paragraph",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "delivery-hyd-point"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "delivery-hyd-point",
+      "source_id": "guide-delivery",
+      "treatment_family": "delivery",
+      "service_city": "Hyderabad",
+      "minimum_inr": "85000.00",
+      "maximum_inr": "85000.00",
+      "currency": "INR",
+      "value_kind": "guide_point",
+      "context": "Approximate figure printed separately from range; not a computed average",
+      "source_locator": "Treatment cost table",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [
+        "delivery-hyd-range"
+      ],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "brain-blr-listing-1",
+      "source_id": "listing-brain-bengaluru",
+      "treatment_family": "mri",
+      "service_city": "Bengaluru",
+      "minimum_inr": "7800.00",
+      "maximum_inr": "7800.00",
+      "currency": "INR",
+      "value_kind": "clinic_listing",
+      "context": "Brain MRI advertised as plain; not the single-knee product in the earlier dataset",
+      "source_locator": "Available at section",
+      "provider_name": "Apollo Clinic, Indiranagar",
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "brain-blr-listing-2",
+      "source_id": "listing-brain-bengaluru",
+      "treatment_family": "mri",
+      "service_city": "Bengaluru",
+      "minimum_inr": "12540.00",
+      "maximum_inr": "12540.00",
+      "currency": "INR",
+      "value_kind": "clinic_listing",
+      "context": "Brain MRI advertised as plain; not the single-knee product in the earlier dataset",
+      "source_locator": "Available at section",
+      "provider_name": "Apollo Clinic, Sarjapur Road",
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "brain-blr-listing-3",
+      "source_id": "listing-brain-bengaluru",
+      "treatment_family": "mri",
+      "service_city": "Bengaluru",
+      "minimum_inr": "12540.00",
+      "maximum_inr": "12540.00",
+      "currency": "INR",
+      "value_kind": "clinic_listing",
+      "context": "Brain MRI advertised as plain; not the single-knee product in the earlier dataset",
+      "source_locator": "Available at section",
+      "provider_name": "Apollo Medical Center, Marathahalli",
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "brain-blr-listing-4",
+      "source_id": "listing-brain-bengaluru",
+      "treatment_family": "mri",
+      "service_city": "Bengaluru",
+      "minimum_inr": "13794.00",
+      "maximum_inr": "13794.00",
+      "currency": "INR",
+      "value_kind": "clinic_listing",
+      "context": "Brain MRI advertised as plain; not the single-knee product in the earlier dataset",
+      "source_locator": "Available at section",
+      "provider_name": "Apollo One Hosa Road Junction",
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "brain-blr-listing-5",
+      "source_id": "listing-brain-bengaluru",
+      "treatment_family": "mri",
+      "service_city": "Bengaluru",
+      "minimum_inr": "8500.00",
+      "maximum_inr": "8500.00",
+      "currency": "INR",
+      "value_kind": "clinic_listing",
+      "context": "Brain MRI advertised as plain; not the single-knee product in the earlier dataset",
+      "source_locator": "Available at section",
+      "provider_name": "Apollo Clinic, Electronic City",
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    },
+    {
+      "record_id": "consult-cghs-reference",
+      "source_id": "cghs-consultation-reference",
+      "treatment_family": "consultation",
+      "service_city": null,
+      "minimum_inr": "700.00",
+      "maximum_inr": "700.00",
+      "currency": "INR",
+      "value_kind": "scheme_tariff_reference",
+      "context": "CGHS OPD allowance for relevant DM/MCh super-specialist consultations at empanelled facilities; not a general private cash fee",
+      "source_locator": "PDF page 2, clause i",
+      "provider_name": null,
+      "mapped_hospital_id": null,
+      "observed_on": "2026-10-29",
+      "valid_from": null,
+      "valid_to": null,
+      "estimator_eligible": false,
+      "related_figures": [],
+      "missing_fields": [
+        "Facility-specific package identity",
+        "Exact inclusions and exclusions",
+        "Effective tariff interval"
+      ],
+      "status": "published_reference_only"
+    }
+  ],
+  "target_families": [
+    "angioplasty",
+    "knee-replacement",
+    "cataract",
+    "delivery",
+    "mri",
+    "consultation"
+  ],
+  "notes": [
+    "Guides, clinic listings and scheme tariff references are distinct evidence classes.",
+    "Unknown fields are not filled with assumed values.",
+    "Related figures retain their source context and are never averaged."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "collected_on": "2026-10-29",
+  "observations": [
+    {
+      "observation_id": "obs-001",
+      "topic": "Aarogyasri coverage",
+      "source_id": "source-003",
+      "claim_summary": "State initiatives page describes family coverage of INR 1000000 under Cheyutha / Rajiv Arogyasri.",
+      "locator": "Cheyutha Scheme section",
+      "status": "needs_policy_review"
+    },
+    {
+      "observation_id": "obs-002",
+      "topic": "Aarogyasri coverage",
+      "source_id": "source-004",
+      "claim_summary": "FAQ describes INR 200000 per family annually including a conditional buffer.",
+      "locator": "Financial coverage FAQ",
+      "status": "conflicts_with_obs-001"
+    },
+    {
+      "observation_id": "obs-003",
+      "topic": "PM-JAY",
+      "url": "https://nha.gov.in/PM-JAY",
+      "status": "blocked_direct_fetch_403",
+      "notes": "Search excerpts found but not promoted to normalized data; full policy and applicable eligibility paths need review."
+    },
+    {
+      "observation_id": "obs-004",
+      "topic": "CGHS",
+      "url": "https://www.iiserb.ac.in/hc/rate",
+      "status": "research_lead_only",
+      "notes": "Official institution lists revised rates effective 13 October 2025. Underlying order and city-specific tariff applicability not inspected."
+    },
+    {
+      "observation_id": "obs-005",
+      "topic": "ESIC",
+      "url": "https://mckolkata.esic.gov.in/attachments/circularfile/ESIC_1771842739.pdf",
+      "status": "research_lead_only",
+      "notes": "Official medical-benefit publication located; detailed current eligibility rules not extracted."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS sources(source_id TEXT PRIMARY KEY,url TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS cities(city_id TEXT PRIMARY KEY,name TEXT NOT NULL,state_code TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS hospitals(hospital_id TEXT PRIMARY KEY,city_id TEXT NOT NULL REFERENCES cities(city_id),name TEXT NOT NULL,provenance TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS families(family_id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS treatments(treatment_id TEXT PRIMARY KEY,family_id TEXT NOT NULL REFERENCES families(family_id),payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS evidence(evidence_id TEXT PRIMARY KEY,source_id TEXT NOT NULL REFERENCES sources(source_id),hospital_id TEXT NOT NULL REFERENCES hospitals(hospital_id),field_name TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS tariffs(tariff_id TEXT PRIMARY KEY,treatment_id TEXT NOT NULL REFERENCES treatments(treatment_id),source_id TEXT NOT NULL REFERENCES sources(source_id),amount_paise INTEGER NOT NULL CHECK(amount_paise>0),release_status TEXT NOT NULL CHECK(release_status='review_required'),payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS tariff_cities(tariff_id TEXT NOT NULL REFERENCES tariffs(tariff_id),city_id TEXT NOT NULL REFERENCES cities(city_id),PRIMARY KEY(tariff_id,city_id));
+CREATE TABLE IF NOT EXISTS observations(observation_id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS self_pay_prices(price_id TEXT PRIMARY KEY,hospital_id TEXT NOT NULL REFERENCES hospitals(hospital_id),treatment_id TEXT NOT NULL REFERENCES treatments(treatment_id),source_id TEXT NOT NULL REFERENCES sources(source_id),minimum_paise INTEGER NOT NULL CHECK(minimum_paise>=0),maximum_paise INTEGER NOT NULL CHECK(maximum_paise>=minimum_paise),room_type TEXT NOT NULL,billing_unit TEXT NOT NULL,valid_from TEXT NOT NULL,valid_to TEXT NOT NULL CHECK(valid_to>valid_from),reviewed INTEGER NOT NULL CHECK(reviewed IN (0,1)),payload TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS hospital_city_idx ON hospitals(city_id);
+CREATE INDEX IF NOT EXISTS price_lookup_idx ON self_pay_prices(treatment_id,hospital_id);

@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "check": "Six distinct treatment families",
+      "passed": true
+    },
+    {
+      "check": "Unique tariff IDs",
+      "passed": true
+    },
+    {
+      "check": "Tariff source references resolve",
+      "passed": true
+    },
+    {
+      "check": "Tariff treatment references resolve",
+      "passed": true
+    },
+    {
+      "check": "Tariff cities resolve to pilot cities",
+      "passed": true
+    },
+    {
+      "check": "Amounts positive and exact decimal strings",
+      "passed": true
+    },
+    {
+      "check": "Tariffs gated pending review",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "Supplemental file structural validation; no independent medical or legal policy verification. Earlier pilot files preserved."
+}

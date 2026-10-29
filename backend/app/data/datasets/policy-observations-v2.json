@@ -1,0 +1,35 @@
+{
+  "records": [
+    {
+      "id": "policy-pmjay-2024",
+      "scheme": "PM-JAY",
+      "source_id": "source-pmjay-pib-2024",
+      "locator": "Key Features and Free Health Coverage for All Seniors 70+ sections",
+      "status": "historical_snapshot_needs_refresh",
+      "claims": {
+        "coverage_limit_inr": "500000.00",
+        "coverage_period": "annual",
+        "coverage_unit": "family",
+        "senior_path_minimum_age": 70,
+        "senior_path_income_independent": true
+      },
+      "conditions": "Existing beneficiary families have distinct senior top-up arrangements; some other public coverage requires a choice. Enrollment, current policy and package checks remain required. Do not use age alone to confirm entitlement."
+    },
+    {
+      "id": "policy-cghs-opd-2026",
+      "scheme": "CGHS",
+      "source_id": "source-cghs-clarification-2026",
+      "status": "sourced_needs_operational_review",
+      "claims": {
+        "super_specialist_opd_inr": "700.00",
+        "required_qualification": [
+          "DM",
+          "MCh"
+        ],
+        "relevant_discipline_required": true,
+        "empanelled_facility_required": true
+      },
+      "notes": "Context-specific consultation allowance, not a generic hospital fee or confirmation of eligibility."
+    }
+  ]
+}

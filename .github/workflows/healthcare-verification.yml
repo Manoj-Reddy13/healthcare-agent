@@ -1,0 +1,83 @@
+name: Member 3 and 4 verification
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/healthcare-verification.yml'
+  push:
+    branches: [main, feature/healthcare-data]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/healthcare-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: member3-verification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-data.txt
+            backend/requirements-integration.txt
+      - name: Install the tested backend environment
+        run: python -m pip install -r backend/requirements.txt -r backend/requirements-integration.txt
+      - name: Rebuild, validate and test both backends
+        working-directory: backend
+        run: python -m scripts.ci_verify --reports "$RUNNER_TEMP/member3-reports"
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-verification-${{ matrix.os }}
+          path: ${{ runner.temp }}/member3-reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+  frontend-build:
+    name: Existing frontend production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked frontend dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Compile the existing frontend
+        run: npm run build
+      - name: Upload build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-build
+          path: frontend/dist/
+          if-no-files-found: error
+          retention-days: 14

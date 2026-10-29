@@ -1,0 +1,90 @@
+[
+  {
+    "hospital_id": "hospital-hyd-001",
+    "specialty": "Cardiology",
+    "source_id": "source-001",
+    "source_label": "Cardiac Sciences",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Cardiac Sciences is mapped to Cardiology for directory search; does not establish treatment package availability."
+  },
+  {
+    "hospital_id": "hospital-hyd-001",
+    "specialty": "Oncology",
+    "source_id": "source-001",
+    "source_label": "Oncology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  },
+  {
+    "hospital_id": "hospital-hyd-001",
+    "specialty": "Neurology",
+    "source_id": "source-001",
+    "source_label": "Neurology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  },
+  {
+    "hospital_id": "hospital-hyd-001",
+    "specialty": "Nephrology",
+    "source_id": "source-001",
+    "source_label": "Nephrology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  },
+  {
+    "hospital_id": "hospital-blr-001",
+    "specialty": "Cardiology",
+    "source_id": "source-002",
+    "source_label": "Cardiac Sciences",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Cardiac Sciences is mapped to Cardiology for directory search; does not establish treatment package availability."
+  },
+  {
+    "hospital_id": "hospital-blr-001",
+    "specialty": "Oncology",
+    "source_id": "source-002",
+    "source_label": "Oncology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  },
+  {
+    "hospital_id": "hospital-blr-001",
+    "specialty": "Neurology",
+    "source_id": "source-002",
+    "source_label": "Neurology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  },
+  {
+    "hospital_id": "hospital-blr-001",
+    "specialty": "Nephrology",
+    "source_id": "source-002",
+    "source_label": "Nephrology",
+    "locator": "Discover Our Top Specialities section",
+    "observed_on": "2026-10-29",
+    "refresh_by": "2027-01-27",
+    "provenance_status": "sourced",
+    "normalization_note": "Official display label retained."
+  }
+]

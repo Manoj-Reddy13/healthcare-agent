@@ -1,0 +1,177 @@
+{
+  "instructions": "Copy a template into the matching pilot array. Null is unknown. Required fields and validation rules are in the specification. Templates are not importable records.",
+  "templates": {
+    "cities": {
+      "city_id": null,
+      "name": null,
+      "state_code": null,
+      "country_code": null
+    },
+    "specialties": {
+      "specialty_id": null,
+      "name": null
+    },
+    "treatments": {
+      "treatment_id": null,
+      "name": null,
+      "specialty_id": null,
+      "procedure_variant": null,
+      "description": null
+    },
+    "treatment_aliases": {
+      "alias_id": null,
+      "treatment_id": null,
+      "alias": null,
+      "normalized_alias": null
+    },
+    "hospitals": {
+      "hospital_id": null,
+      "legacy_id": null,
+      "name": null,
+      "city_id": null,
+      "address": null,
+      "postal_code": null,
+      "phone": null,
+      "website": null,
+      "latitude": null,
+      "longitude": null,
+      "ownership_type": null,
+      "status": null,
+      "provenance_status": null,
+      "created_at": null,
+      "updated_at": null
+    },
+    "hospital_specialties": {
+      "hospital_id": null,
+      "specialty_id": null
+    },
+    "hospital_accreditations": {
+      "id": null,
+      "hospital_id": null,
+      "accreditation_name": null,
+      "valid_from": null,
+      "valid_to": null,
+      "verification_status": null
+    },
+    "prices": {
+      "price_id": null,
+      "treatment_id": null,
+      "hospital_id": null,
+      "city_id": null,
+      "price_scope": null,
+      "price_basis": null,
+      "room_type": null,
+      "minimum_inr": null,
+      "maximum_inr": null,
+      "currency": null,
+      "billing_unit": null,
+      "length_of_stay_days": null,
+      "valid_from": null,
+      "valid_to": null,
+      "observed_on": null,
+      "provenance_status": null
+    },
+    "price_components": {
+      "component_id": null,
+      "price_id": null,
+      "component_name": null,
+      "inclusion_status": null,
+      "amount_inr": null,
+      "billing_unit": null
+    },
+    "room_adjustments": {
+      "adjustment_id": null,
+      "treatment_id": null,
+      "city_id": null,
+      "baseline_room_type": null,
+      "target_room_type": null,
+      "multiplier": null,
+      "valid_from": null,
+      "valid_to": null,
+      "provenance_status": null
+    },
+    "schemes": {
+      "scheme_id": null,
+      "name": null,
+      "short_code": null,
+      "category": null,
+      "administrator": null,
+      "official_portal": null,
+      "eligibility_summary": null,
+      "claim_process_summary": null,
+      "coverage_limit_inr": null,
+      "coverage_period": null,
+      "coverage_unit": null,
+      "income_ceiling_inr": null,
+      "income_period": null,
+      "income_unit": null,
+      "valid_from": null,
+      "valid_to": null,
+      "provenance_status": null
+    },
+    "scheme_locations": {
+      "scheme_id": null,
+      "state_code": null,
+      "national": null
+    },
+    "scheme_treatments": {
+      "scheme_id": null,
+      "treatment_id": null,
+      "package_code": null,
+      "coverage_status": null,
+      "conditions": null,
+      "valid_from": null,
+      "valid_to": null
+    },
+    "hospital_schemes": {
+      "id": null,
+      "hospital_id": null,
+      "scheme_id": null,
+      "participation_status": null,
+      "restrictions": null,
+      "valid_from": null,
+      "valid_to": null
+    },
+    "scheme_rule_groups": {
+      "rule_group_id": null,
+      "scheme_id": null,
+      "parent_group_id": null,
+      "operator": null
+    },
+    "scheme_rules": {
+      "rule_id": null,
+      "scheme_id": null,
+      "attribute": null,
+      "operator": null,
+      "expected_value": null,
+      "rule_group_id": null,
+      "valid_from": null,
+      "valid_to": null,
+      "explanation": null
+    },
+    "sources": {
+      "source_id": null,
+      "url": null,
+      "publisher": null,
+      "title": null,
+      "source_type": null,
+      "accessed_on": null,
+      "published_on": null,
+      "source_updated_on": null,
+      "archived_reference": null
+    },
+    "evidence": {
+      "evidence_id": null,
+      "source_id": null,
+      "entity_type": null,
+      "entity_id": null,
+      "field_or_relationship": null,
+      "supporting_excerpt_or_locator": null,
+      "verification_status": null,
+      "reviewer": null,
+      "reviewed_on": null,
+      "next_review_on": null,
+      "notes": null
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "families": [
+    {
+      "family_id": "family-angioplasty",
+      "display_name": "Angioplasty",
+      "suggested_specialty": "Cardiology",
+      "required_variant_attributes": [
+        "vessel_count",
+        "stent_type",
+        "stent_count",
+        "implant_included"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    },
+    {
+      "family_id": "family-knee-replacement",
+      "display_name": "Knee Replacement",
+      "suggested_specialty": "Orthopedics",
+      "required_variant_attributes": [
+        "single_or_bilateral",
+        "implant_type",
+        "implant_included"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    },
+    {
+      "family_id": "family-cataract",
+      "display_name": "Cataract",
+      "suggested_specialty": "Ophthalmology",
+      "required_variant_attributes": [
+        "single_or_bilateral",
+        "technique",
+        "lens_type",
+        "lens_included"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    },
+    {
+      "family_id": "family-delivery",
+      "display_name": "Delivery",
+      "suggested_specialty": "Gynecology",
+      "required_variant_attributes": [
+        "delivery_method",
+        "complication_status",
+        "newborn_care_included"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    },
+    {
+      "family_id": "family-mri",
+      "display_name": "Mri",
+      "suggested_specialty": "Radiology",
+      "required_variant_attributes": [
+        "body_region",
+        "single_or_bilateral",
+        "contrast"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    },
+    {
+      "family_id": "family-consultation",
+      "display_name": "Consultation",
+      "suggested_specialty": "General Medicine",
+      "required_variant_attributes": [
+        "specialty",
+        "qualification",
+        "outpatient_or_inpatient"
+      ],
+      "status": "project_catalog_draft",
+      "notes": "Project organization only; no clinical equivalence or price asserted. Requires variant review before broad matching."
+    }
+  ],
+  "accepted_variants": [
+    {
+      "treatment_id": "treatment-mri-knee-single-plain",
+      "family_id": "family-mri",
+      "name": "MRI of one knee, no contrast",
+      "procedure_variant": {
+        "body_region": "knee",
+        "single_or_bilateral": "single",
+        "contrast": false
+      },
+      "source_code": "RI106",
+      "source_id": "source-cghs-2025",
+      "status": "sourced"
+    }
+  ]
+}
