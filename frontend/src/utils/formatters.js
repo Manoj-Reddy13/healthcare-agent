@@ -7,6 +7,8 @@ export function formatINR(amount) {
   }).format(amount);
 }
 
+export const formatCurrency = formatINR;
+
 export function formatINRCompact(amount) {
   if (amount === undefined || amount === null || isNaN(amount)) return "N/A";
   if (amount >= 10000000) {

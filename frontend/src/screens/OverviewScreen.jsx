@@ -84,57 +84,46 @@ export default function OverviewScreen({ onNavigate }) {
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in pb-12">
       
-      {/* 1. Hero Banner with Modern Hospital Illustration */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-6 sm:p-10 text-white shadow-xl border border-slate-800">
-        
-        {/* Glow ambient circles */}
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-12 w-64 h-64 rounded-full bg-teal-500/10 blur-2xl pointer-events-none" />
-
+      {/* 1. Hero Banner with Modern Hospital Illustration (Clean Light SaaS Style) */}
+      <section className="relative overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm p-6 sm:p-8 md:p-10">
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
           
           {/* Left Text & Search */}
           <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Next-Gen Healthcare Intelligence</span>
-            </div>
-
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               Your AI-Powered <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+              <span className="text-emerald-600">
                 Healthcare Navigation Platform
               </span>
             </h1>
 
-            <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
+            <p className="text-slate-600 text-xs sm:text-sm md:text-base leading-relaxed">
               Find hospitals, estimate treatment costs, explore government schemes, and get a personalized healthcare plan — all in one place.
             </p>
 
             {/* Main Interactive Search Input */}
             <form onSubmit={handleSearchSubmit} className="pt-2">
-              <div className="flex items-center bg-white dark:bg-slate-900/90 rounded-2xl p-1.5 shadow-2xl border border-slate-200 dark:border-slate-700 max-w-xl">
+              <div className="flex items-center bg-slate-50 rounded-2xl p-1.5 shadow-sm border border-slate-200 focus-within:border-emerald-500 focus-within:bg-white transition-all max-w-xl">
                 <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for treatment, hospital, scheme... (e.g., Angioplasty in Hyderabad)"
-                  className="w-full px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white bg-transparent placeholder-slate-400 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs sm:text-sm text-slate-900 bg-transparent placeholder-slate-400 focus:outline-none"
                 />
                 <button
                   type="submit"
-                  className="px-4 sm:px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-emerald-600/30 shrink-0 flex items-center gap-1.5"
+                  className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-emerald-600/30 shrink-0 flex items-center justify-center"
                 >
-                  <span>Search</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <Search className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Quick Prompt Pills */}
-              <div className="flex items-center gap-2 flex-wrap pt-2.5 text-xs text-slate-400">
-                <span className="text-[11px] font-medium text-slate-400">Popular:</span>
-                {['Angioplasty', 'Knee Replacement', 'PM-JAY', 'NIMS Hospital'].map((term) => (
+              <div className="flex items-center gap-2 flex-wrap pt-2.5 text-xs text-slate-500">
+                <span className="text-[11px] font-semibold text-slate-400">Popular:</span>
+                {['Angioplasty', 'Knee Replacement', 'PM-JAY', 'NIMS Hospital', 'Apollo'].map((term) => (
                   <button
                     key={term}
                     type="button"
@@ -144,7 +133,7 @@ export default function OverviewScreen({ onNavigate }) {
                       else if (term.includes('PM-JAY')) onNavigate('schemes');
                       else onNavigate('hospitals');
                     }}
-                    className="px-2 py-0.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] border border-slate-700/60 transition-colors"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium border border-slate-200 transition-colors"
                   >
                     {term}
                   </button>
@@ -153,24 +142,24 @@ export default function OverviewScreen({ onNavigate }) {
             </form>
           </div>
 
-          {/* Right Visual / Hospital SaaS Badge */}
-          <div className="w-full lg:w-72 shrink-0">
-            <div className="relative rounded-2xl bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-md border border-white/15 p-5 shadow-2xl text-center space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+          {/* Right Visual: Hospital Building Graphic */}
+          <div className="w-full lg:w-80 shrink-0 flex items-center justify-center">
+            <div className="relative rounded-2xl bg-gradient-to-tr from-teal-50 via-emerald-50 to-blue-50 border border-slate-200 p-6 shadow-sm text-center space-y-3 w-full">
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-teal-600/20">
                 <Building2 className="w-10 h-10" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-base">CareNav Directory</h3>
-                <p className="text-xs text-emerald-200 mt-0.5">Empaneled & Verified Healthcare Network</p>
+                <h3 className="font-extrabold text-slate-900 text-base">CareNav Healthcare</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Empaneled & Verified Hospital Directory</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-white/10 text-xs">
-                <div className="bg-white/5 p-2 rounded-xl">
-                  <span className="text-[10px] text-slate-400 block">Coverage</span>
-                  <span className="font-bold text-emerald-300">100% Cashless</span>
+              <div className="grid grid-cols-2 gap-2 text-left pt-2 border-t border-slate-200/80 text-xs">
+                <div className="bg-white p-2 rounded-xl border border-slate-200">
+                  <span className="text-[10px] text-slate-400 block font-medium">Network</span>
+                  <span className="font-bold text-emerald-700">Cashless Direct</span>
                 </div>
-                <div className="bg-white/5 p-2 rounded-xl">
-                  <span className="text-[10px] text-slate-400 block">Accreditation</span>
-                  <span className="font-bold text-teal-300">NABH & NABL</span>
+                <div className="bg-white p-2 rounded-xl border border-slate-200">
+                  <span className="text-[10px] text-slate-400 block font-medium">Standards</span>
+                  <span className="font-bold text-teal-700">NABH & JCI</span>
                 </div>
               </div>
             </div>

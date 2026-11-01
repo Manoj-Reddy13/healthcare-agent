@@ -159,3 +159,46 @@ def test_generate_healthcare_plan():
     assert len(data["recommended_hospitals"]) > 0
     assert len(data["preparation_steps"]) == 4
     assert len(data["data_sources"]) > 0
+
+def test_insurers_and_policies_endpoints():
+    res = client.get("/api/insurers")
+    assert res.status_code == 200
+    insurers = res.json()
+    assert len(insurers) >= 8
+    assert any(i["short_name"] == "Star Health" for i in insurers)
+
+    p_res = client.get("/api/policies")
+    assert p_res.status_code == 200
+    policies = p_res.json()
+    assert len(policies) >= 6
+    assert any(p["policy_id"] == "pol-star-comp" for p in policies)
+
+    comp_res = client.post("/api/policies/compare", json={"policy_ids": ["pol-star-comp", "pol-hdfc-optima"]})
+    assert comp_res.status_code == 200
+    comp_data = comp_res.json()
+    assert len(comp_data["policies"]) == 2
+    assert len(comp_data["comparison_features"]) >= 10
+
+def test_diseases_and_network_and_calculator_endpoints():
+    d_res = client.get("/api/diseases")
+    assert d_res.status_code == 200
+    diseases = d_res.json()
+    assert len(diseases) >= 8
+
+    net_res = client.post("/api/network/match", json={"hospital_id": "hosp-hyd-01", "insurer_id": "ins-star"})
+    assert net_res.status_code == 200
+    net_data = net_res.json()
+    assert net_data["total_matches"] >= 1
+    assert net_data["matches"][0]["cashless_available"] is True
+
+    calc_res = client.post("/api/calculator/out-of-pocket", json={
+        "procedure_id": "proc-angio",
+        "room_type": "Single Private",
+        "policy_id": "pol-star-comp"
+    })
+    assert calc_res.status_code == 200
+    calc_data = calc_res.json()
+    assert calc_data["gross_hospital_bill"] > 0
+    assert calc_data["final_out_of_pocket"] > 0
+    assert len(calc_data["deduction_steps"]) >= 3
+

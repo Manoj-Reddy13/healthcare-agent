@@ -224,6 +224,51 @@ def execute_retrieve_information(arguments: dict[str, Any]) -> dict[str, Any]:
     )
     return {"guidance": info, "query": query}
 
+def execute_search_policies(arguments: dict[str, Any]) -> dict[str, Any]:
+    from app.services.insurance_service import InsuranceService
+    insurer_id = arguments.get("insurer_id")
+    policy_type = arguments.get("policy_type")
+    policies = InsuranceService.list_policies(insurer_id=insurer_id, policy_type=policy_type)
+    return {"count": len(policies), "policies": [p.model_dump() for p in policies]}
+
+def execute_compare_policies(arguments: dict[str, Any]) -> dict[str, Any]:
+    from app.services.insurance_service import InsuranceService
+    from app.models.insurance import PolicyComparisonRequest
+    policy_ids = arguments.get("policy_ids", ["pol-star-comp", "pol-hdfc-optima"])
+    req = PolicyComparisonRequest(policy_ids=policy_ids)
+    res = InsuranceService.compare_policies(req)
+    return res.model_dump()
+
+def execute_explore_diseases(arguments: dict[str, Any]) -> dict[str, Any]:
+    from app.services.disease_service import DiseaseService
+    search = arguments.get("search")
+    specialty = arguments.get("specialty")
+    diseases = DiseaseService.list_diseases(search=search, specialty=specialty)
+    return {"count": len(diseases), "diseases": [d.model_dump() for d in diseases]}
+
+def execute_match_network(arguments: dict[str, Any]) -> dict[str, Any]:
+    from app.services.network_service import NetworkService
+    from app.models.network import NetworkMatchRequest
+    req = NetworkMatchRequest(
+        hospital_id=arguments.get("hospital_id"),
+        insurer_id=arguments.get("insurer_id"),
+        policy_id=arguments.get("policy_id")
+    )
+    res = NetworkService.match_network(req)
+    return res.model_dump()
+
+def execute_calculate_out_of_pocket(arguments: dict[str, Any]) -> dict[str, Any]:
+    from app.services.calculator_service import CalculatorService
+    from app.models.calculator import OutOfPocketRequest
+    req = OutOfPocketRequest(
+        procedure_id=arguments.get("procedure_id", "proc-angio"),
+        hospital_id=arguments.get("hospital_id"),
+        room_type=arguments.get("room_type", "Single Private"),
+        policy_id=arguments.get("policy_id")
+    )
+    res = CalculatorService.calculate_out_of_pocket(req)
+    return res.model_dump()
+
 TOOL_DISPATCHER = {
     "search_hospitals": execute_search_hospitals,
     "get_hospital_details": execute_get_hospital_details,
@@ -232,5 +277,10 @@ TOOL_DISPATCHER = {
     "check_eligibility": execute_check_eligibility,
     "compare_hospitals": execute_compare_hospitals,
     "generate_healthcare_plan": execute_generate_healthcare_plan,
-    "retrieve_healthcare_information": execute_retrieve_information
+    "retrieve_healthcare_information": execute_retrieve_information,
+    "search_insurance_policies": execute_search_policies,
+    "compare_insurance_policies": execute_compare_policies,
+    "explore_diseases_and_procedures": execute_explore_diseases,
+    "match_hospital_insurance_network": execute_match_network,
+    "calculate_out_of_pocket_bill": execute_calculate_out_of_pocket
 }

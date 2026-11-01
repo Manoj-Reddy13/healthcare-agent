@@ -10,6 +10,7 @@ import {
   HeartPulse,
   Info,
   LayoutDashboard,
+  Network,
   ShieldAlert,
   ShieldCheck,
   Stethoscope,
@@ -19,10 +20,13 @@ import { useHealthcare } from '../context/HealthcareContext';
 
 export const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, badge: null },
-  { id: 'navigator', label: 'AI Navigator', icon: Bot, badge: 'AI' },
   { id: 'hospitals', label: 'Find Hospitals', icon: Building2, badge: null },
-  { id: 'estimator', label: 'Cost Estimator', icon: Calculator, badge: null },
+  { id: 'diseases', label: 'Diseases & Treatments', icon: Stethoscope, badge: null },
+  { id: 'insurance', label: 'Insurance Explorer', icon: ShieldCheck, badge: 'IRDAI' },
+  { id: 'network', label: 'Hospital-Insurance Match', icon: Network, badge: 'Cashless' },
+  { id: 'estimator', label: 'Cost & OOP Estimator', icon: Calculator, badge: null },
   { id: 'schemes', label: 'Govt Schemes', icon: LandmarkIcon, badge: 'PM-JAY' },
+  { id: 'navigator', label: 'AI Navigator', icon: Bot, badge: 'AI' },
   { id: 'plan', label: 'My Healthcare Plan', icon: ClipboardList, badge: null },
   { id: 'about', label: 'About & Data Sources', icon: Database, badge: null }
 ];

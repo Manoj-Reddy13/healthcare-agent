@@ -16,6 +16,9 @@ import EstimatorScreen from './screens/EstimatorScreen';
 import SchemesScreen from './screens/SchemesScreen';
 import PlanScreen from './screens/PlanScreen';
 import AboutScreen from './screens/AboutScreen';
+import DiseaseExplorerScreen from './screens/DiseaseExplorerScreen';
+import InsuranceExplorerScreen from './screens/InsuranceExplorerScreen';
+import NetworkScreen from './screens/NetworkScreen';
 
 function MainApp() {
   const [activeScreen, setActiveScreen] = useState('overview');
@@ -29,6 +32,9 @@ function MainApp() {
       case 'overview': return 'Overview';
       case 'navigator': return 'AI Healthcare Navigator';
       case 'hospitals': return 'Find Hospitals';
+      case 'diseases': return 'Disease & Treatment Explorer';
+      case 'insurance': return 'Health Insurance Policy Explorer';
+      case 'network': return 'Hospital–Insurance Cashless Network';
       case 'estimator': return 'Treatment Cost Estimator';
       case 'schemes': return 'Government Healthcare Schemes';
       case 'plan': return 'My Healthcare Plan';
@@ -74,6 +80,18 @@ function MainApp() {
 
           {activeScreen === 'hospitals' && (
             <HospitalsScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
+
+          {activeScreen === 'diseases' && (
+            <DiseaseExplorerScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
+
+          {activeScreen === 'insurance' && (
+            <InsuranceExplorerScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
+
+          {activeScreen === 'network' && (
+            <NetworkScreen onNavigate={(screen) => setActiveScreen(screen)} />
           )}
 
           {activeScreen === 'estimator' && (

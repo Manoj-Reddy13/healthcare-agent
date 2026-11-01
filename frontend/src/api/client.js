@@ -589,4 +589,133 @@ export class ApiClient {
       message: "Simulated appointment request registered successfully."
     };
   }
+
+  static async fetchInsurers() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/insurers`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchInsurers failed", e);
+    }
+    return [];
+  }
+
+  static async fetchPolicies(params = {}) {
+    try {
+      const query = new URLSearchParams();
+      if (params.insurer_id) query.append("insurer_id", params.insurer_id);
+      if (params.policy_type) query.append("policy_type", params.policy_type);
+      const url = `${API_BASE_URL}/api/policies${query.toString() ? `?${query.toString()}` : ''}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchPolicies failed", e);
+    }
+    return [];
+  }
+
+  static async fetchPolicyById(policyId) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchPolicyById failed", e);
+    }
+    return null;
+  }
+
+  static async comparePolicies(policyIds) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/policies/compare`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ policy_ids: policyIds }),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("comparePolicies failed", e);
+    }
+    return null;
+  }
+
+  static async fetchDiseases(params = {}) {
+    try {
+      const query = new URLSearchParams();
+      if (params.search) query.append("search", params.search);
+      if (params.specialty) query.append("specialty", params.specialty);
+      const url = `${API_BASE_URL}/api/diseases${query.toString() ? `?${query.toString()}` : ''}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchDiseases failed", e);
+    }
+    return [];
+  }
+
+  static async fetchDiseaseById(diseaseId) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/diseases/${encodeURIComponent(diseaseId)}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchDiseaseById failed", e);
+    }
+    return null;
+  }
+
+  static async fetchProcedures(params = {}) {
+    try {
+      const query = new URLSearchParams();
+      if (params.specialty) query.append("specialty", params.specialty);
+      if (params.disease_id) query.append("disease_id", params.disease_id);
+      const url = `${API_BASE_URL}/api/procedures${query.toString() ? `?${query.toString()}` : ''}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchProcedures failed", e);
+    }
+    return [];
+  }
+
+  static async matchHospitalInsuranceNetwork(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/network/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("matchHospitalInsuranceNetwork failed", e);
+    }
+    return {
+      total_matches: 0,
+      matches: [],
+      query_summary: payload,
+      actionable_advice: ["Verification with hospital TPA desk recommended."],
+      disclaimer: "Data network check."
+    };
+  }
+
+  static async calculateOutOfPocket(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/calculator/out-of-pocket`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("calculateOutOfPocket failed", e);
+    }
+    return null;
+  }
 }
