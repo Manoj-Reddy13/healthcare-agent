@@ -9,5 +9,7 @@ def calculate_cost_estimate(payload: CostEstimateRequest) -> CostEstimate:
     return CostService.estimate_treatment_cost(
         procedure=payload.procedure,
         city=payload.city,
-        room_type=payload.room_type
+        room_type=payload.room_type,
+        stay_days=payload.stay_days,
+        hospital_id=payload.hospital_id
     )

@@ -4,6 +4,8 @@ from app.api.hospitals import router as hospitals_router
 from app.api.costs import router as costs_router
 from app.api.schemes import router as schemes_router
 from app.api.appointments import router as appointments_router
+from app.api.sources import router as sources_router
+from app.api.plans import router as plans_router
 
 api_router = APIRouter()
 
@@ -12,3 +14,5 @@ api_router.include_router(hospitals_router, tags=["Hospitals"])
 api_router.include_router(costs_router, tags=["Cost Estimates"])
 api_router.include_router(schemes_router, tags=["Healthcare Schemes"])
 api_router.include_router(appointments_router, tags=["Appointments"])
+api_router.include_router(sources_router, tags=["Data Sources"])
+api_router.include_router(plans_router, tags=["Healthcare Plans"])

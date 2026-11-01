@@ -161,3 +161,4 @@ export default function Sidebar({ activeScreen, setActiveScreen, isOpen, onClose
     </>
   );
 }
+

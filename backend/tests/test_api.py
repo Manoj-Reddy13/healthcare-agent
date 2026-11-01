@@ -100,3 +100,62 @@ def test_chat_endpoint_emergency_intercept():
     assert data["emergency_detected"] is True
     assert "108" in data["answer"]
     assert len(data["hospitals"]) == 0
+
+
+def test_get_hospital_by_id():
+    response = client.get("/api/hospitals/hosp-hyd-01")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == "hosp-hyd-01"
+    assert "Apollo" in data["name"]
+    assert data["pincode"] == "500033"
+
+def test_compare_hospitals_endpoint():
+    response = client.get("/api/hospitals/compare?hospital_ids=hosp-hyd-01&hospital_ids=hosp-hyd-02&procedure=Angioplasty")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["comparison_count"] == 2
+    assert len(data["hospitals"]) == 2
+    assert any("Apollo" in h["name"] for h in data["hospitals"])
+    assert any("NIMS" in h["name"] for h in data["hospitals"])
+
+def test_get_sources_registry():
+    response = client.get("/api/sources")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] >= 4
+    publishers = [s["publisher"] for s in data["sources"]]
+    assert any("CGHS" in p or "Health and Family Welfare" in p for p in publishers)
+
+def test_check_scheme_eligibility():
+    payload = {
+        "age": 72,
+        "state": "Telangana",
+        "has_ration_card": True,
+        "annual_income": 150000.0,
+        "is_senior": True
+    }
+    response = client.post("/api/schemes/check-eligibility", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_eligible"] >= 2
+    codes = [m["short_code"] for m in data["matches"] if m["is_eligible"]]
+    assert "PM-JAY" in codes
+    assert "AAROGYASRI" in codes
+
+def test_generate_healthcare_plan():
+    payload = {
+        "treatment": "Angioplasty",
+        "city": "Hyderabad",
+        "budget": 200000.0,
+        "room_type": "Semi-Private",
+        "has_ration_card": True
+    }
+    response = client.post("/api/plans/generate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "plan-" in data["plan_id"]
+    assert data["estimated_cost_min"] > 0
+    assert len(data["recommended_hospitals"]) > 0
+    assert len(data["preparation_steps"]) == 4
+    assert len(data["data_sources"]) > 0

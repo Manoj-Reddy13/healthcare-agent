@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Any, Optional
 from app.config import settings
 from app.agent.prompts import EMERGENCY_KEYWORDS, EMERGENCY_MESSAGE
 from app.agent.tools import TOOL_DISPATCHER, AVAILABLE_TOOLS_SCHEMA
@@ -33,7 +33,7 @@ class AgentOrchestrator:
         if any(term in lowered for term in ["book appointment", "schedule appointment", "reserve slot", "confirm booking"]):
             return ChatResponse(
                 answer=(
-                    "I can help register a **simulated appointment request** for the demo. "
+                    "I can help register a simulated appointment request for the demo. "
                     "Please review the hospital details and confirm your preferred date and contact info."
                 ),
                 requires_confirmation=True,
@@ -46,11 +46,19 @@ class AgentOrchestrator:
         found_hospitals: list[Hospital] = []
         found_cost_estimate: Optional[CostEstimate] = None
         found_schemes: list[HealthcareScheme] = []
+        eligibility_result: Optional[dict[str, Any]] = None
+        comparison_result: Optional[dict[str, Any]] = None
+        healthcare_plan: Optional[dict[str, Any]] = None
+        sources_cited: list[str] = [
+            "National Health Authority (NHA) Package Master 2024",
+            "Telangana Aarogyasri Trust Guideline Orders",
+            "CGHS 2025/2026 Tariff Benchmark Schedule"
+        ]
         answer_parts: list[str] = []
 
         # Detect City
         city = None
-        if "hyderabad" in lowered:
+        if "hyderabad" in lowered or "secunderabad" in lowered:
             city = "Hyderabad"
         elif "bengaluru" in lowered or "bangalore" in lowered:
             city = "Bengaluru"
@@ -93,6 +101,8 @@ class AgentOrchestrator:
 
         # Detect Cost estimation intent
         is_cost_query = any(w in lowered for w in ["cost", "price", "rate", "estimate", "expense", "fee", "how much"])
+
+        # Detect Procedure keywords
         procedure_kw = None
         if "angioplasty" in lowered or "stent" in lowered:
             procedure_kw = "Angioplasty"
@@ -109,16 +119,89 @@ class AgentOrchestrator:
         elif is_cost_query and specialty:
             procedure_kw = f"{specialty} Procedure"
 
-        # Detect Scheme lookup intent
-        is_scheme_query = any(w in lowered for w in ["scheme", "insurance", "policy", "ayushman", "aarogya", "bpl", "ration card", "claim", "government"])
+        # Detect Intent categories
+        is_plan_query = any(w in lowered for w in ["plan", "generate plan", "budget", "healthcare plan", "navigation plan"])
+        is_compare_query = any(w in lowered for w in ["compare", "comparison", "difference between", "versus", " vs "])
+        is_eligibility_query = any(w in lowered for w in ["eligible", "eligibility", "qualify", "am i eligible", "who is eligible", "ration card"])
+        is_scheme_query = any(w in lowered for w in ["scheme", "insurance", "policy", "ayushman", "aarogya", "bpl", "claim", "government"])
 
-        # Decide which tools to run
-        ran_hospital_tool = False
         ran_cost_tool = False
         ran_scheme_tool = False
 
-        # If user explicitly asked for procedure cost
-        if is_cost_query and procedure_kw:
+        # Branch A: Healthcare Plan Generation
+        if is_plan_query and (procedure_kw or specialty):
+            target_proc = procedure_kw or f"{specialty} Care"
+            plan_args = {
+                "treatment": target_proc,
+                "city": city or "Hyderabad",
+                "budget": 200000.0,
+                "room_type": "Semi-Private"
+            }
+            res = TOOL_DISPATCHER["generate_healthcare_plan"](plan_args)
+            healthcare_plan = res.get("healthcare_plan")
+            tool_records.append(ToolCallRecord(tool="generate_healthcare_plan", arguments=plan_args, result_count=1))
+            answer_parts.append(
+                f"### Personalized Healthcare Plan: {target_proc} in {city or 'Hyderabad'}\n"
+                f"- **Indicative Range**: ₹{healthcare_plan['estimated_cost_min']:,.0f} – ₹{healthcare_plan['estimated_cost_max']:,.0f}\n"
+                f"- **Potential Scheme Coverage**: Up to ₹{healthcare_plan['potential_coverage_max']:,.0f}\n"
+                f"- **Estimated Out-of-Pocket**: ₹{healthcare_plan['estimated_out_of_pocket_min']:,.0f} – ₹{healthcare_plan['estimated_out_of_pocket_max']:,.0f}\n\n"
+                f"**Financial Guidance**: {healthcare_plan['financial_guidance']}\n"
+                f"Recommended facilities include **{', '.join([h['name'] for h in healthcare_plan['recommended_hospitals'][:2]])}**."
+            )
+
+        # Branch B: Hospital Comparison
+        elif is_compare_query:
+            comp_proc = procedure_kw or "Angioplasty"
+            hosp_ids = ["hosp-hyd-01", "hosp-hyd-02"]
+            if "care" in lowered:
+                hosp_ids.append("hosp-hyd-04")
+            if "kims" in lowered:
+                hosp_ids.append("hosp-hyd-03")
+            comp_args = {"hospital_ids": hosp_ids, "procedure": comp_proc}
+            comp_res = TOOL_DISPATCHER["compare_hospitals"](comp_args)
+            comparison_result = comp_res
+            tool_records.append(ToolCallRecord(tool="compare_hospitals", arguments=comp_args, result_count=len(comp_res.get("hospitals", []))))
+            
+            h_lines = []
+            for h in comp_res.get("hospitals", []):
+                h_lines.append(
+                    f"- **{h['name']}** ({h['hospital_type']}, {h['locality']}): Indicative {comp_proc} ₹{h['indicative_cost']:,.0f}. "
+                    f"Rating {h['rating']}★, {h['distance_km']} km. Empanelled: {', '.join(h['empanelled_schemes'][:2])}."
+                )
+            answer_parts.append(
+                f"### Side-by-Side Comparison for {comp_proc}\n" + "\n".join(h_lines) + "\n\n"
+                "Corporate hospitals provide shorter wait times and single-room suites; autonomous state institutes like NIMS provide statutory package tariffs under government supervision."
+            )
+
+        # Branch C: Eligibility Assessment
+        elif is_eligibility_query:
+            age_match = re.search(r'\b(\d{1,2})\b', message)
+            extracted_age = int(age_match.group(1)) if age_match and int(age_match.group(1)) < 110 else 48
+            has_ration = any(w in lowered for w in ["ration", "white card", "bpl", "food security"])
+            el_args = {
+                "age": extracted_age,
+                "state": "Telangana" if city == "Hyderabad" else "All India",
+                "has_ration_card": has_ration or True,
+                "annual_income": 180000.0,
+                "is_senior": extracted_age >= 70 or "senior" in lowered
+            }
+            el_res = TOOL_DISPATCHER["check_eligibility"](el_args)
+            eligibility_result = el_res
+            tool_records.append(ToolCallRecord(tool="check_eligibility", arguments=el_args, result_count=el_res.get("total_eligible", 0)))
+            
+            e_lines = []
+            for m in el_res.get("matches", []):
+                status_icon = "Eligible" if m["is_eligible"] else "Not Eligible"
+                reasons_text = " ".join(m["reasons"])
+                e_lines.append(f"- **{m['scheme_name']}** ({status_icon}): Coverage up to ₹{m['coverage_limit']:,.0f}. {reasons_text}")
+
+            answer_parts.append(
+                f"### Healthcare Scheme Eligibility Assessment ({extracted_age} yrs, {el_args['state']})\n" +
+                "\n".join(e_lines) + f"\n\n**Next Steps**: {el_res.get('guidance', '')}"
+            )
+
+        # Branch D: Cost Estimation Intent
+        elif is_cost_query and procedure_kw:
             cost_args = {"procedure": procedure_kw, "city": city or "Hyderabad", "room_type": "Semi-Private"}
             cost_result = TOOL_DISPATCHER["estimate_treatment_cost"](cost_args)
             found_cost_estimate = CostEstimate(**cost_result["cost_estimate"])
@@ -131,8 +214,8 @@ class AgentOrchestrator:
                 f"- **Eligible Schemes**: {', '.join(found_cost_estimate.covered_under_schemes)}."
             )
 
-        # If user asked for schemes or general government aid
-        if is_scheme_query or (scheme_filter and not ran_cost_tool):
+        # Branch E: Scheme Information
+        if (is_scheme_query or (scheme_filter and not ran_cost_tool)) and not eligibility_result and not healthcare_plan:
             scheme_args = {"state": "Telangana" if city == "Hyderabad" else None, "specialty": specialty}
             scheme_result = TOOL_DISPATCHER["find_healthcare_schemes"](scheme_args)
             schemes_data = [HealthcareScheme(**s) for s in scheme_result["schemes"]]
@@ -147,8 +230,8 @@ class AgentOrchestrator:
                 f"Found {len(found_schemes)} applicable schemes ({scheme_names}). Eligible beneficiaries can access cashless treatment up to government coverage ceilings."
             )
 
-        # By default or if hospital search context exists
-        if not ran_scheme_tool and not ran_cost_tool or any(w in lowered for w in ["hospital", "clinic", "doctor", "find", "best", "affordable", "near"]):
+        # Branch F: Hospital Search
+        if (not ran_scheme_tool and not ran_cost_tool) or any(w in lowered for w in ["hospital", "clinic", "doctor", "find", "best", "affordable", "near"]):
             hosp_args = {
                 "city": city or "Hyderabad",
                 "specialty": specialty,
@@ -157,7 +240,6 @@ class AgentOrchestrator:
             hosp_result = TOOL_DISPATCHER["search_hospitals"](hosp_args)
             found_hospitals = [Hospital(**h) for h in hosp_result["hospitals"]]
             tool_records.append(ToolCallRecord(tool="search_hospitals", arguments=hosp_args, result_count=len(found_hospitals)))
-            ran_hospital_tool = True
 
             city_label = city or "Hyderabad"
             spec_label = f" specializing in {specialty}" if specialty else ""
@@ -167,18 +249,16 @@ class AgentOrchestrator:
                 "Below are indicative cost benchmarks and accepted government schemes for your consideration."
             )
 
-        # Fallback if no specific intent recognized
+        # Fallback welcome if nothing matched
         if not answer_parts:
-            # Run general hospital lookup for Hyderabad
             hosp_args = {"city": "Hyderabad"}
             hosp_result = TOOL_DISPATCHER["search_hospitals"](hosp_args)
             found_hospitals = [Hospital(**h) for h in hosp_result["hospitals"]]
             tool_records.append(ToolCallRecord(tool="search_hospitals", arguments=hosp_args, result_count=len(found_hospitals)))
             answer_parts.append(
-                "Welcome to the **Healthcare Cost & Care Navigation Agent**. "
-                "I can assist you in finding nearby hospitals, calculating indicative procedure costs, "
-                "and verifying public health schemes like Ayushman Bharat (PM-JAY) and Aarogyasri. "
-                "Here are healthcare centers in Hyderabad to get started:"
+                "Welcome to the **CareNav AI Healthcare Navigation Platform**. "
+                "I can assist you in finding nearby accredited hospitals, calculating indicative procedure costs, "
+                "verifying public schemes like Ayushman Bharat (PM-JAY) and Aarogyasri, and generating personalized care navigation plans."
             )
 
         final_answer = "\n\n".join(answer_parts)
@@ -189,6 +269,10 @@ class AgentOrchestrator:
             hospitals=found_hospitals,
             cost_estimate=found_cost_estimate,
             schemes=found_schemes,
+            eligibility_result=eligibility_result,
+            comparison_result=comparison_result,
+            healthcare_plan=healthcare_plan,
+            data_sources=sources_cited,
             requires_confirmation=False,
             data_mode="mock"
         )

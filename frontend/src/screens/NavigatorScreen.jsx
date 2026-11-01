@@ -405,3 +405,4 @@ export default function NavigatorScreen({ onNavigate }) {
     </div>
   );
 }
+

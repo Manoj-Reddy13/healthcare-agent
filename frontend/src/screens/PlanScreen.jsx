@@ -422,3 +422,4 @@ export default function PlanScreen({ onNavigate }) {
     </div>
   );
 }
+

@@ -8,8 +8,8 @@ MOCK_SCHEMES: list[HealthcareScheme] = [
         category="Government",
         coverage_limit=500000.0,
         eligibility_summary=(
-            "Families listed in the SECC 2011 database, rural households with specific deprivation criteria, "
-            "and identified occupational categories of urban workers. Also covers senior citizens aged 70+ irrespective of income."
+            "Families listed in the SECC 2011 database, rural households with deprivation criteria (D1-D7), "
+            "and identified occupational categories of urban workers. Also covers all senior citizens aged 70+ irrespective of income."
         ),
         covered_specialties=[
             "Cardiology", "Cardiothoracic Surgery", "Oncology", "Orthopedics",
@@ -18,20 +18,35 @@ MOCK_SCHEMES: list[HealthcareScheme] = [
         income_ceiling_inr=None,
         official_portal="https://pmjay.gov.in",
         claim_process_summary=(
-            "Cashless at all empaneled public and private hospitals. Present your Ayushman Card / Aadhaar card "
+            "Cashless at all empaneled public and private hospitals nationwide. Present your Ayushman Card or Aadhaar "
             "at the Ayushman Mitra helpdesk upon hospital admission."
         ),
-        data_mode="mock"
+        data_mode="mock",
+        beneficiary_categories=[
+            "SECC 2011 Beneficiary Families",
+            "Universal Senior Citizens (Age 70+ under expanded NHA coverage)",
+            "Rural Deprivation Criteria (D1 to D7)",
+            "Identified Urban Informal Workers"
+        ],
+        required_documents=[
+            "Aadhaar Card of patient",
+            "Ration Card or Family Head Record",
+            "Ayushman Card (BIS Portal download)",
+            "Active mobile number linked to Aadhaar"
+        ],
+        participating_hospitals_count=29380,
+        official_source="National Health Authority (NHA), Ministry of Health & Family Welfare",
+        last_updated="2026-10-29"
     ),
     HealthcareScheme(
         id="scheme-aarogyasri",
-        name="Dr. YSR Aarogyasri / Telangana Aarogyasri Health Care Trust",
+        name="Telangana Aarogyasri Community Health Care Scheme",
         short_code="AAROGYASRI",
         category="State",
         coverage_limit=1000000.0,
         eligibility_summary=(
-            "White ration card / Food Security Card holders residing in Telangana and Andhra Pradesh. "
-            "Annual family income ceiling below ₹5,00,000 for covered tertiary procedures."
+            "White ration card / Food Security Card holder families residing in Telangana. "
+            "Enhanced coverage limit of up to ₹10 Lakh for 1,672 secondary and tertiary surgical packages."
         ),
         covered_specialties=[
             "Cardiology", "Nephrology", "Oncology", "Polytrauma", "Gynecology", "Pediatrics", "Ophthalmology"
@@ -39,10 +54,25 @@ MOCK_SCHEMES: list[HealthcareScheme] = [
         income_ceiling_inr=500000.0,
         official_portal="https://aarogyasri.telangana.gov.in",
         claim_process_summary=(
-            "Completely cashless treatment through the Aarogya Mithra desk at network hospitals. "
-            "Covers hospital stay, doctor fees, surgeries, medicines, and 10-day post-discharge medicines."
+            "100% cashless treatment through the 24x7 Aarogya Mithra desk at network hospitals. "
+            "Covers pre-hospital diagnostics, inpatient stay, surgery, consumables, and 10-day post-discharge medicines."
         ),
-        data_mode="mock"
+        data_mode="mock",
+        beneficiary_categories=[
+            "Telangana Food Security (White) Ration Card Holders",
+            "Antyodaya Anna Yojana (AAY) Beneficiaries",
+            "Annapurna Card Beneficiaries",
+            "Low-income BPL Agricultural Households"
+        ],
+        required_documents=[
+            "Food Security Card (Telangana White Ration Card)",
+            "Aadhaar Card of all treated family members",
+            "Outpatient Slip / Referral from Government Hospital",
+            "Recent passport photo for Aarogya Mithra registry"
+        ],
+        participating_hospitals_count=874,
+        official_source="Telangana Aarogyasri Health Care Trust, Government of Telangana",
+        last_updated="2026-10-29"
     ),
     HealthcareScheme(
         id="scheme-cghs",
@@ -63,7 +93,21 @@ MOCK_SCHEMES: list[HealthcareScheme] = [
             "Cashless treatment at empaneled private hospitals upon referral from a CGHS Wellness Centre / Medical Officer. "
             "Direct emergency admissions allowed with CGHS Plastic Card."
         ),
-        data_mode="mock"
+        data_mode="mock",
+        beneficiary_categories=[
+            "Central Government Employees",
+            "Central Government Pensioners & Family Pensioners",
+            "Sitting and Former Members of Parliament",
+            "Recognized Freedom Fighters"
+        ],
+        required_documents=[
+            "CGHS Plastic Card (Valid Beneficiary ID)",
+            "Referral Memo from CGHS Wellness Centre Medical Officer",
+            "Government Photo Identity Proof (Aadhaar / Voter ID)"
+        ],
+        participating_hospitals_count=1450,
+        official_source="Directorate General of CGHS, MoHFW (Tariff Order 2025/2026)",
+        last_updated="2026-10-29"
     ),
     HealthcareScheme(
         id="scheme-esic",
@@ -84,6 +128,19 @@ MOCK_SCHEMES: list[HealthcareScheme] = [
             "Direct outpatient & inpatient care at ESI dispensaries and hospitals. "
             "Secondary & super-specialty tie-up hospital referrals for advanced operations without out-of-pocket costs."
         ),
-        data_mode="mock"
+        data_mode="mock",
+        beneficiary_categories=[
+            "Organized Sector Employees earning <= ₹21,000/month",
+            "Insured Persons (IP) & Registered Dependent Family Members",
+            "Persons with Disabilities earning <= ₹25,000/month"
+        ],
+        required_documents=[
+            "ESIC Pehchan / e-Pehchan Card with IP Number",
+            "Form 105 for Super Specialty Treatment Tie-up referral",
+            "Aadhaar Card of Insured Person and Patient"
+        ],
+        participating_hospitals_count=1520,
+        official_source="Employees' State Insurance Corporation, Ministry of Labour & Employment",
+        last_updated="2026-10-29"
     )
 ]

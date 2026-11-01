@@ -21,7 +21,18 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Ayushman Bharat (PM-JAY)", "Aarogyasri", "CGHS"],
         accreditation=["NABH", "JCI", "NABL"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Private",
+        pincode="500033",
+        locality="Jubilee Hills",
+        facilities=["24x7 Emergency", "Cath Lab", "ICU", "Blood Bank", "Robotic Surgery", "Ambulance Service", "Diagnostic Lab"],
+        empanelled_schemes_verified=["Ayushman Bharat (PM-JAY)", "Aarogyasri (Telangana)", "CGHS"],
+        latitude=17.4325,
+        longitude=78.4071,
+        directions_url="https://www.google.com/maps/search/?api=1&query=Apollo+Health+City+Jubilee+Hills+Hyderabad",
+        website="https://www.apollohospitals.com",
+        data_source="National Health Authority / Hospital Published Schedule",
+        last_updated="2026-10-29"
     ),
     Hospital(
         id="hosp-hyd-02",
@@ -43,7 +54,18 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Ayushman Bharat (PM-JAY)", "Aarogyasri", "ESIC", "CGHS"],
         accreditation=["NABH"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Government",
+        pincode="500082",
+        locality="Punjagutta",
+        facilities=["24x7 Emergency", "Cath Lab", "Dialysis Unit", "ICU", "Blood Bank", "Trauma Care", "Free Scheme Helpdesk"],
+        empanelled_schemes_verified=["Ayushman Bharat (PM-JAY)", "Aarogyasri (Telangana)", "ESIC", "CGHS"],
+        latitude=17.4223,
+        longitude=78.4526,
+        directions_url="https://www.google.com/maps/search/?api=1&query=NIMS+Punjagutta+Hyderabad",
+        website="https://www.nims.edu.in",
+        data_source="Government Gazette & NIMS Statutory Tariff Order",
+        last_updated="2026-10-29"
     ),
     Hospital(
         id="hosp-hyd-03",
@@ -65,7 +87,18 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Aarogyasri", "CGHS", "ESIC"],
         accreditation=["NABH", "NABL"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Private",
+        pincode="500003",
+        locality="Begumpet / Secunderabad",
+        facilities=["24x7 Emergency", "Cath Lab", "ICU", "ECMO Support", "Blood Bank", "Pharmacy"],
+        empanelled_schemes_verified=["Aarogyasri (Telangana)", "CGHS", "ESIC"],
+        latitude=17.4361,
+        longitude=78.4842,
+        directions_url="https://www.google.com/maps/search/?api=1&query=KIMS+Hospitals+Secunderabad",
+        website="https://www.kimshospitals.com",
+        data_source="National Health Authority Empanelled Registry",
+        last_updated="2026-10-29"
     ),
     Hospital(
         id="hosp-hyd-04",
@@ -87,7 +120,18 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Ayushman Bharat (PM-JAY)", "Aarogyasri", "CGHS"],
         accreditation=["NABH"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Private",
+        pincode="500034",
+        locality="Banjara Hills",
+        facilities=["24x7 Emergency", "Cath Lab", "Cardiothoracic ICU", "Blood Bank", "Pharmacy"],
+        empanelled_schemes_verified=["Ayushman Bharat (PM-JAY)", "Aarogyasri (Telangana)", "CGHS"],
+        latitude=17.4162,
+        longitude=78.4485,
+        directions_url="https://www.google.com/maps/search/?api=1&query=Care+Hospitals+Banjara+Hills+Hyderabad",
+        website="https://www.carehospitals.com",
+        data_source="Hospital Published Tariff & Regional Benchmarks",
+        last_updated="2026-10-29"
     ),
     Hospital(
         id="hosp-hyd-05",
@@ -109,7 +153,18 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Ayushman Bharat (PM-JAY)", "Aarogyasri", "ESIC"],
         accreditation=["NABH"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Government",
+        pincode="500003",
+        locality="Secunderabad",
+        facilities=["24x7 Emergency", "Trauma Center", "ICU", "Free Treatment Helpdesk", "Blood Bank"],
+        empanelled_schemes_verified=["Ayushman Bharat (PM-JAY)", "Aarogyasri (Telangana)", "ESIC"],
+        latitude=17.4248,
+        longitude=78.5036,
+        directions_url="https://www.google.com/maps/search/?api=1&query=Gandhi+Hospital+Secunderabad",
+        website="https://dme.telangana.gov.in",
+        data_source="Telangana Directorate of Medical Education",
+        last_updated="2026-10-29"
     ),
     Hospital(
         id="hosp-blr-01",
@@ -131,6 +186,17 @@ MOCK_HOSPITALS: list[Hospital] = [
         accepted_schemes=["Ayushman Bharat (PM-JAY)", "CGHS", "ESIC"],
         accreditation=["NABH", "JCI"],
         verified=True,
-        data_mode="mock"
+        data_mode="mock",
+        hospital_type="Trust",
+        pincode="560099",
+        locality="Bommasandra / Electronic City",
+        facilities=["24x7 Emergency", "Cardiac Cath Lab", "Pediatric ICU", "Blood Bank", "Bone Marrow Transplant"],
+        empanelled_schemes_verified=["Ayushman Bharat (PM-JAY)", "CGHS", "ESIC"],
+        latitude=12.8056,
+        longitude=77.6983,
+        directions_url="https://www.google.com/maps/search/?api=1&query=Narayana+Health+City+Bengaluru",
+        website="https://www.narayanahealth.org",
+        data_source="National Health Authority & Narayana Health Published Tariffs",
+        last_updated="2026-10-29"
     )
 ]

@@ -326,3 +326,4 @@ export default function SchemesScreen({ onNavigate }) {
     </div>
   );
 }
+
