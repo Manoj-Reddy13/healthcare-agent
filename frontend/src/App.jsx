@@ -1,107 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
+import React, { useState } from 'react';
+import { HealthcareProvider, useHealthcare } from './context/HealthcareContext';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 import EmergencyBanner from './components/EmergencyBanner';
-import ChatInterface from './components/ChatInterface';
-import HospitalDirectory from './components/HospitalDirectory';
-import CostEstimator from './components/CostEstimator';
-import SchemeExplorer from './components/SchemeExplorer';
-import AppointmentModal from './components/AppointmentModal';
 import DisclaimerModal from './components/DisclaimerModal';
-import { ApiClient } from './api/client';
-import { ShieldCheck, Stethoscope } from 'lucide-react';
+import AppointmentModal from './components/AppointmentModal';
+import HospitalDetailModal from './components/HospitalDetailModal';
+import EligibilityModal from './components/EligibilityModal';
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('chat');
+// Screens
+import OverviewScreen from './screens/OverviewScreen';
+import NavigatorScreen from './screens/NavigatorScreen';
+import HospitalsScreen from './screens/HospitalsScreen';
+import EstimatorScreen from './screens/EstimatorScreen';
+import SchemesScreen from './screens/SchemesScreen';
+import PlanScreen from './screens/PlanScreen';
+import AboutScreen from './screens/AboutScreen';
+
+function MainApp() {
+  const [activeScreen, setActiveScreen] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showEmergency, setShowEmergency] = useState(true);
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [selectedHospitalForBooking, setSelectedHospitalForBooking] = useState(null);
-  const [backendHealth, setBackendHealth] = useState(null);
 
-  useEffect(() => {
-    async function checkStatus() {
-      const health = await ApiClient.checkHealth();
-      setBackendHealth(health);
+  const { disclaimerOpen, setDisclaimerOpen } = useHealthcare();
+
+  const getScreenTitle = (screen) => {
+    switch (screen) {
+      case 'overview': return 'Overview';
+      case 'navigator': return 'AI Healthcare Navigator';
+      case 'hospitals': return 'Find Hospitals';
+      case 'estimator': return 'Treatment Cost Estimator';
+      case 'schemes': return 'Government Healthcare Schemes';
+      case 'plan': return 'My Healthcare Plan';
+      case 'about': return 'About & Data Sources';
+      default: return 'Healthcare Platform';
     }
-    checkStatus();
-    const interval = setInterval(checkStatus, 15000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleBookHospital = (hospital) => {
-    setSelectedHospitalForBooking(hospital);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans antialiased text-slate-900 dark:text-slate-100 selection:bg-emerald-500/20 selection:text-emerald-700">
       
-      {/* Emergency Alert Banner */}
-      {showEmergency && (
-        <EmergencyBanner onDismiss={() => setShowEmergency(false)} />
-      )}
-
-      {/* Main Header / Navigation */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenDisclaimer={() => setShowDisclaimer(true)}
-        backendHealth={backendHealth}
+      {/* 1. Left Sidebar (Fixed on Desktop, Drawer on Mobile) */}
+      <Sidebar
+        activeScreen={activeScreen}
+        setActiveScreen={setActiveScreen}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'chat' && (
-          <ChatInterface onSelectBookHospital={handleBookHospital} />
+      {/* 2. Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64 transition-all">
+        
+        {/* Top Header */}
+        <Header
+          activeScreenTitle={getScreenTitle(activeScreen)}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
+
+        {/* Emergency Alert Banner */}
+        {showEmergency && (
+          <EmergencyBanner onDismiss={() => setShowEmergency(false)} />
         )}
 
-        {activeTab === 'hospitals' && (
-          <HospitalDirectory onSelectBookHospital={handleBookHospital} />
-        )}
+        {/* Main Workspace Body */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
+          {activeScreen === 'overview' && (
+            <OverviewScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
 
-        {activeTab === 'costs' && (
-          <CostEstimator />
-        )}
+          {activeScreen === 'navigator' && (
+            <NavigatorScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
 
-        {activeTab === 'schemes' && (
-          <SchemeExplorer />
-        )}
-      </main>
+          {activeScreen === 'hospitals' && (
+            <HospitalsScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
 
-      {/* Modals */}
-      <AppointmentModal
-        hospital={selectedHospitalForBooking}
-        isOpen={Boolean(selectedHospitalForBooking)}
-        onClose={() => setSelectedHospitalForBooking(null)}
-      />
+          {activeScreen === 'estimator' && (
+            <EstimatorScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
 
-      <DisclaimerModal
-        isOpen={showDisclaimer}
-        onClose={() => setShowDisclaimer(false)}
-      />
+          {activeScreen === 'schemes' && (
+            <SchemesScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
 
-      {/* Footer */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {activeScreen === 'plan' && (
+            <PlanScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
+
+          {activeScreen === 'about' && (
+            <AboutScreen onNavigate={(screen) => setActiveScreen(screen)} />
+          )}
+        </main>
+
+        {/* Subtle SaaS Footer */}
+        <footer className="py-5 px-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <Stethoscope className="w-4 h-4 text-emerald-600" />
-            <span className="font-bold text-slate-700 dark:text-slate-300">
-              Healthcare Cost & Care Navigation Agent
-            </span>
-            <span className="text-slate-400">| Member 1 (React) & Member 2 (AI Agent)</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">CareNav AI</span>
+            <span>•</span>
+            <span>AI-Powered Healthcare Navigation Platform</span>
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setShowDisclaimer(true)}
-              className="hover:text-emerald-600 transition-colors flex items-center gap-1"
+              onClick={() => setDisclaimerOpen(true)}
+              className="hover:text-emerald-600 transition-colors"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Disclaimer & Simulation Safety
+              Clinical & Simulation Disclaimers
             </button>
             <span>•</span>
-            <span>FastAPI + Vite + React + Tailwind</span>
+            <button
+              onClick={() => setActiveScreen('about')}
+              className="hover:text-emerald-600 transition-colors"
+            >
+              Data Provenance
+            </button>
           </div>
-        </div>
-      </footer>
+        </footer>
+
+      </div>
+
+      {/* 3. Global Modals */}
+      <AppointmentModal />
+      <HospitalDetailModal />
+      <EligibilityModal />
+      <DisclaimerModal
+        isOpen={disclaimerOpen}
+        onClose={() => setDisclaimerOpen(false)}
+      />
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <HealthcareProvider>
+      <MainApp />
+    </HealthcareProvider>
   );
 }

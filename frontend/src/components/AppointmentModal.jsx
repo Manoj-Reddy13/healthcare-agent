@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
-import { AlertCircle, CalendarCheck, CheckCircle2, Clock, Loader2, ShieldAlert, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  AlertCircle,
+  Building2,
+  CalendarCheck,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  Phone,
+  ShieldAlert,
+  User,
+  X
+} from 'lucide-react';
 import { ApiClient } from '../api/client';
+import { useHealthcare } from '../context/HealthcareContext';
 
-export default function AppointmentModal({ hospital, isOpen, onClose }) {
+export default function AppointmentModal() {
+  const { selectedHospitalForBooking, setSelectedHospitalForBooking, toggleChecklist } = useHealthcare();
+
+  const hospital = selectedHospitalForBooking;
+
   const [formData, setFormData] = useState({
-    patient_name: '',
-    patient_phone: '',
-    specialty: hospital?.specialties?.[0] || 'Cardiology',
+    patient_name: 'Manoj Kumar Reddy',
+    patient_phone: '+91 98765 43210',
+    specialty: 'Cardiology',
     preferred_date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-    notes: '',
+    notes: 'Simulated demo consultation for cardiac assessment',
     user_confirmed: false,
   });
 
@@ -16,12 +32,25 @@ export default function AppointmentModal({ hospital, isOpen, onClose }) {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
-  if (!isOpen || !hospital) return null;
+  useEffect(() => {
+    if (hospital) {
+      setFormData(prev => ({
+        ...prev,
+        specialty: hospital.specialties?.[0] || 'Cardiology',
+        preferred_date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+        user_confirmed: false
+      }));
+      setResult(null);
+      setError(null);
+    }
+  }, [hospital]);
+
+  if (!hospital) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.user_confirmed) {
-      setError("Please check the explicit confirmation checkbox to proceed with the educational simulation.");
+      setError("Please check the explicit simulation confirmation checkbox to proceed.");
       return;
     }
 
@@ -40,6 +69,7 @@ export default function AppointmentModal({ hospital, isOpen, onClose }) {
         user_confirmed: formData.user_confirmed,
       });
       setResult(response);
+      toggleChecklist('deskConsulted');
     } catch (err) {
       setError(err.message || "Unable to register simulated appointment.");
     } finally {
@@ -47,221 +77,175 @@ export default function AppointmentModal({ hospital, isOpen, onClose }) {
     }
   };
 
-  const resetAndClose = () => {
+  const handleClose = () => {
+    setSelectedHospitalForBooking(null);
     setResult(null);
     setError(null);
-    setFormData({
-      patient_name: '',
-      patient_phone: '',
-      specialty: hospital?.specialties?.[0] || 'Cardiology',
-      preferred_date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-      notes: '',
-      user_confirmed: false,
-    });
-    onClose();
   };
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
-      onClick={resetAndClose}
     >
       <div
-        className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative space-y-5"
+        className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <div className="flex items-center gap-2">
-              <CalendarCheck className="w-5 h-5 text-emerald-600" />
-              <h2 id="modal-title" className="text-lg font-bold text-slate-900 dark:text-white">
-                Simulated Care Request
-              </h2>
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center">
+              <CalendarCheck className="w-6 h-6" />
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Target Facility: <span className="font-semibold text-slate-800 dark:text-slate-200">{hospital.name}</span>
-            </p>
+            <div>
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                Book Simulated Appointment
+              </h2>
+              <p className="text-xs text-slate-400">{hospital.name}</p>
+            </div>
           </div>
           <button
-            onClick={resetAndClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label="Close modal"
+            onClick={handleClose}
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Notice of Simulation */}
+        {/* Academic Safety Warning Banner */}
         <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl flex items-start gap-2.5">
-          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-            <strong>Educational Demonstration Notice:</strong> This appointment request is strictly simulated. No actual clinical booking or doctor reservation will be made.
-          </p>
+          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
+            <strong>Educational Demonstration Only:</strong> This workflow demonstrates AI agent action-taking. No real slot is reserved at {hospital.name}.
+          </div>
         </div>
 
-        {/* Success View */}
-        {result ? (
-          <div className="space-y-4 py-2">
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-center space-y-2">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <h3 className="font-bold text-base text-emerald-900 dark:text-emerald-100">
-                Simulated Booking Registered
-              </h3>
-              <p className="text-xs text-emerald-700 dark:text-emerald-300 font-mono">
-                Confirmation ID: {result.confirmation_id}
-              </p>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-xs space-y-2 border border-slate-100 dark:border-slate-800">
-              <div className="flex justify-between py-1 border-b border-slate-200/50 dark:border-slate-700/50">
-                <span className="text-slate-500">Patient:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">{result.patient_name}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/50 dark:border-slate-700/50">
-                <span className="text-slate-500">Department:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">{result.specialty}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/50 dark:border-slate-700/50">
-                <span className="text-slate-500">Simulated Date:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">{result.preferred_date}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-500">Status:</span>
-                <span className="font-semibold text-emerald-600 uppercase tracking-wider">{result.status}</span>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 italic text-center">
-              {result.instructions}
-            </p>
-
-            <button
-              onClick={resetAndClose}
-              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors"
-            >
-              Done
-            </button>
-          </div>
-        ) : (
-          /* Booking Form */
-          <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        {!result ? (
+          <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
             {error && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 rounded-xl text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Patient Full Name *
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700 dark:text-slate-300">
+                Patient Full Name
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Ramesh Kumar"
                 value={formData.patient_name}
                 onChange={(e) => setFormData({ ...formData, patient_name: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Contact Phone *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="+91 98765 43210"
-                  value={formData.patient_phone}
-                  onChange={(e) => setFormData({ ...formData, patient_phone: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700 dark:text-slate-300">
+                Contact Phone Number
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.patient_phone}
+                onChange={(e) => setFormData({ ...formData, patient_phone: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+              />
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Department / Specialty
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700 dark:text-slate-300">
+                  Clinical Specialty
                 </label>
                 <select
                   value={formData.specialty}
                   onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
                 >
                   {hospital.specialties?.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
               </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700 dark:text-slate-300">
+                  Preferred Date
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={formData.preferred_date}
+                  onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Preferred Consultation Date *
-              </label>
-              <input
-                type="date"
-                required
-                value={formData.preferred_date}
-                onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Optional Clinical Notes
-              </label>
-              <textarea
-                rows={2}
-                placeholder="Mention specific symptoms, prior doctor referrals, or scheme card details..."
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-              />
-            </div>
-
-            {/* Explicit Confirmation Checkbox (Safety Enforcement) */}
-            <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 cursor-pointer">
+            {/* Mandatory User Confirmation Checkbox */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start gap-2.5">
               <input
                 type="checkbox"
-                required
+                id="user_confirmed"
                 checked={formData.user_confirmed}
                 onChange={(e) => setFormData({ ...formData, user_confirmed: e.target.checked })}
-                className="mt-1 w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                className="w-4 h-4 text-emerald-600 rounded mt-0.5"
               />
-              <span className="text-xs text-slate-700 dark:text-slate-300 leading-normal">
-                <strong>Explicit Confirmation:</strong> I understand this is an educational mock simulation and that no real hospital booking is made.
-              </span>
-            </label>
+              <label htmlFor="user_confirmed" className="text-[11px] text-slate-600 dark:text-slate-300 cursor-pointer leading-snug">
+                I understand this is an educational simulation demonstrating AI booking intent and does not book an actual physical slot.
+              </label>
+            </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={resetAndClose}
-                className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-xs sm:text-sm"
-              >
-                Cancel
-              </button>
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={loading || !formData.user_confirmed}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all"
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
               >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Confirm Simulated Request
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarCheck className="w-4 h-4" />}
+                <span>Confirm Simulated Registration</span>
               </button>
             </div>
           </form>
+        ) : (
+          /* Confirmation Receipt */
+          <div className="space-y-4 text-xs">
+            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 space-y-2">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <span>Simulated Request Registered</span>
+              </div>
+              <p className="text-[11px] leading-relaxed">
+                Confirmation ID: <code className="bg-emerald-100 dark:bg-emerald-900 px-1 py-0.5 rounded font-bold">{result.confirmation_id}</code>
+              </p>
+              <div className="text-[11px] space-y-1 text-emerald-800 dark:text-emerald-300 pt-1">
+                <div>Hospital: <strong>{result.hospital_name}</strong></div>
+                <div>Department: <strong>{result.specialty}</strong></div>
+                <div>Date: <strong>{result.preferred_date}</strong></div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[11px] text-slate-500">
+              {result.instructions || result.message}
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={handleClose}
+                className="px-5 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         )}
+
       </div>
     </div>
   );
