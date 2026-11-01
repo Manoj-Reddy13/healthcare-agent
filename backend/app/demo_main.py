@@ -54,9 +54,47 @@ def create_demo_app(database=None,frontend_dist=None):
     def health():return {'status':'healthy','service':'healthcare-agent-backend','version':'1.0.0-demo','llm_provider':'original-rule-agent','mock_mode':True,'database_backed':True,'notice':NOTICE}
     @app.get('/api/hospitals')
     @app.get('/api/demo/hospitals')
-    def hospitals(city:str|None=None,specialty:str|None=None,scheme:str|None=None,procedure:str|None=None,max_budget:float|None=Query(None,ge=0,allow_inf_nan=False)):
+    def hospitals(
+        page: int | None = Query(None, ge=1),
+        page_size: int | None = Query(None, ge=1, le=100),
+        state: str | None = None,
+        district: str | None = None,
+        city: str | None = None,
+        care_type: str | None = None,
+        category: str | None = None,
+        specialty: str | None = None,
+        pincode: str | None = None,
+        search: str | None = None,
+        sort_by: str | None = 'name_asc',
+        scheme: str | None = None,
+        procedure: str | None = None,
+        max_budget: float | None = Query(None, ge=0, allow_inf_nan=False),
+        hospital_type: str | None = None,
+        facility: str | None = None,
+        accreditation: str | None = None
+    ):
         if max_budget is not None and procedure is None:
             return {'total':0,'hospitals':[],'data_mode':'mock','status':'needs_information','reason':'Select a procedure for a meaningful budget search','notice':NOTICE}
+
+        # If real dataset directory filtering or pagination is requested:
+        if (state is not None or district is not None or page is not None or page_size is not None
+                or care_type is not None or category is not None or pincode is not None
+                or (search and len(search.strip()) > 0)):
+            from app.services.hospital_service import HospitalService
+            return HospitalService.list_imported_hospitals(
+                search=search,
+                state=state,
+                district=district,
+                city=city,
+                care_type=care_type,
+                category=category,
+                specialty=specialty,
+                pincode=pincode,
+                page=page or 1,
+                page_size=page_size or 20,
+                sort_by=sort_by or 'name_asc'
+            )
+
         try:rows=service.hospitals(city,specialty,scheme,procedure,max_budget)
         except ValueError as exc:raise HTTPException(422,str(exc)) from None
         return {'total':len(rows),'hospitals':rows,'data_mode':'mock','notice':NOTICE}

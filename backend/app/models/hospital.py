@@ -85,6 +85,8 @@ class HospitalFilterOptions(BaseModel):
     categories: list[str]
     popular_specialties: list[str]
     total_hospitals: int
+    state_counts: dict[str, int] = Field(default_factory=dict)
+    district_counts: dict[str, int] = Field(default_factory=dict)
 
 class HospitalStatistics(BaseModel):
     total_hospitals: int
@@ -97,3 +99,4 @@ class HospitalStatistics(BaseModel):
     care_types: list[dict[str, Any]]
     categories: list[dict[str, Any]]
     source_info: dict[str, Any]
+    state_counts: dict[str, int] = Field(default_factory=dict)

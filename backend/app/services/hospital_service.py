@@ -92,18 +92,21 @@ class HospitalService:
         conditions = []
         params = []
 
-        if state and state.lower() not in ("all", "all states", ""):
-            conditions.append("LOWER(state) = LOWER(?)")
+        if state and state.strip() and state.strip().lower() not in ("all", "all states", ""):
+            conditions.append("LOWER(TRIM(state)) = LOWER(TRIM(?))")
             params.append(state.strip())
 
-        if district and district.lower() not in ("all", "all districts", ""):
-            conditions.append("LOWER(district) = LOWER(?)")
+        if district and district.strip() and district.strip().lower() not in ("all", "all districts", ""):
+            conditions.append("LOWER(TRIM(district)) = LOWER(TRIM(?))")
             params.append(district.strip())
 
-        if city and city.strip():
+        if city and city.strip() and city.strip().lower() not in ("all", "all cities", ""):
             c = city.strip().lower()
-            conditions.append("(LOWER(district) LIKE ? OR LOWER(location) LIKE ? OR LOWER(address) LIKE ?)")
-            params.extend([f"%{c}%", f"%{c}%", f"%{c}%"])
+            has_explicit_state = bool(state and state.strip().lower() not in ("all", "all states", ""))
+            is_stray_city = has_explicit_state and c in ("hyderabad", "bengaluru", "bangalore") and state.strip().lower() not in ("telangana", "karnataka")
+            if not is_stray_city:
+                conditions.append("(LOWER(district) LIKE ? OR LOWER(location) LIKE ? OR LOWER(address) LIKE ?)")
+                params.extend([f"%{c}%", f"%{c}%", f"%{c}%"])
 
         if care_type and care_type.lower() not in ("all", "all types", ""):
             conditions.append("LOWER(care_type) = LOWER(?)")
@@ -264,16 +267,30 @@ class HospitalService:
         conn = cls._get_connection()
         cur = conn.cursor()
 
-        # States
-        cur.execute("SELECT DISTINCT state FROM hospitals WHERE state IS NOT NULL AND state != '' ORDER BY state ASC")
-        states = [r[0] for r in cur.fetchall()]
+        # States & state counts
+        cur.execute("SELECT state, COUNT(*) FROM hospitals WHERE state IS NOT NULL AND state != '' GROUP BY state ORDER BY state ASC")
+        state_rows = cur.fetchall()
+        states = [r[0] for r in state_rows]
+        state_counts = {r[0]: r[1] for r in state_rows}
 
-        # Districts
-        if state and state.lower() not in ("all", ""):
-            cur.execute("SELECT DISTINCT district FROM hospitals WHERE LOWER(state) = LOWER(?) AND district IS NOT NULL AND district != '' ORDER BY district ASC", (state.strip(),))
+        # Districts (scoped to selected state if given)
+        district_counts = {}
+        if state and state.strip() and state.strip().lower() not in ("all", "all states", ""):
+            cur.execute(
+                "SELECT district, COUNT(*) FROM hospitals WHERE LOWER(TRIM(state)) = LOWER(TRIM(?)) AND district IS NOT NULL AND district != 'Not specified' GROUP BY district ORDER BY district ASC",
+                (state.strip(),)
+            )
+            dist_rows = cur.fetchall()
+            districts = [r[0] for r in dist_rows]
+            district_counts = {r[0]: r[1] for r in dist_rows}
+
+            cur.execute("SELECT COUNT(*) FROM hospitals WHERE LOWER(TRIM(state)) = LOWER(TRIM(?))", (state.strip(),))
+            total = cur.fetchone()[0]
         else:
             cur.execute("SELECT DISTINCT district FROM hospitals WHERE district IS NOT NULL AND district != '' ORDER BY district ASC LIMIT 100")
-        districts = [r[0] for r in cur.fetchall()]
+            districts = [r[0] for r in cur.fetchall()]
+            cur.execute("SELECT COUNT(*) FROM hospitals")
+            total = cur.fetchone()[0]
 
         # Care Types
         cur.execute("SELECT DISTINCT care_type FROM hospitals WHERE care_type IS NOT NULL AND care_type != 'Not available' ORDER BY care_type ASC")
@@ -289,10 +306,6 @@ class HospitalService:
             "Nephrology", "General Surgery", "Ophthalmology", "Pediatrics", "ENT",
             "Gastroenterology", "Dermatology", "Urology", "Obstetrics and Gynaecology"
         ]
-
-        # Total
-        cur.execute("SELECT COUNT(*) FROM hospitals")
-        total = cur.fetchone()[0]
         conn.close()
 
         return HospitalFilterOptions(
@@ -301,7 +314,9 @@ class HospitalService:
             care_types=care_types,
             categories=categories,
             popular_specialties=popular_specialties,
-            total_hospitals=total
+            total_hospitals=total,
+            state_counts=state_counts,
+            district_counts=district_counts
         )
 
     @classmethod
@@ -331,6 +346,10 @@ class HospitalService:
         cur.execute("SELECT state, COUNT(*) as cnt FROM hospitals GROUP BY state ORDER BY cnt DESC LIMIT 10")
         top_states = [{"state": r[0], "count": r[1]} for r in cur.fetchall()]
 
+        # All State Counts
+        cur.execute("SELECT state, COUNT(*) as cnt FROM hospitals GROUP BY state ORDER BY cnt DESC")
+        state_counts = {r[0]: r[1] for r in cur.fetchall()}
+
         # Care Types
         cur.execute("SELECT care_type, COUNT(*) as cnt FROM hospitals GROUP BY care_type ORDER BY cnt DESC")
         care_types = [{"care_type": r[0], "count": r[1]} for r in cur.fetchall()]
@@ -354,7 +373,8 @@ class HospitalService:
             top_states=top_states,
             care_types=care_types,
             categories=categories,
-            source_info=source_info
+            source_info=source_info,
+            state_counts=state_counts
         )
 
     # Legacy method for original contract compatibility

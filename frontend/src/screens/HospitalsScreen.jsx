@@ -28,12 +28,12 @@ import { formatINR } from '../utils/formatters';
 export default function HospitalsScreen({ onNavigate }) {
   const { city, setActiveHospitalDetails, setSelectedHospitalForBooking } = useHealthcare();
 
-  // Statistics & Provenance Metadata
+  // Statistics & Provenance Metadata (loaded dynamically from API)
   const [stats, setStats] = useState({
     total_hospitals: 30273,
     states_count: 36,
-    districts_count: 734,
-    hospitals_with_phone: 2197,
+    districts_count: 578,
+    hospitals_with_phone: 1732,
     hospitals_with_coordinates: 10843,
     hospitals_with_specialties: 990,
     data_source: "National Health Portal (NHP) Open Government Data CSV (Ministry of Health and Family Welfare)",
@@ -46,11 +46,13 @@ export default function HospitalsScreen({ onNavigate }) {
     districts: [],
     care_types: [],
     categories: [],
-    popular_specialties: []
+    popular_specialties: [],
+    state_counts: {},
+    district_counts: {}
   });
 
-  // Active Query Parameters
-  const [selectedState, setSelectedState] = useState("Telangana");
+  // Active Query Parameters (Default to All States or clean selection)
+  const [selectedState, setSelectedState] = useState("All");
   const [selectedDistrict, setSelectedDistrict] = useState("All");
   const [selectedCareType, setSelectedCareType] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -70,11 +72,11 @@ export default function HospitalsScreen({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load dataset statistics once
+  // Load dataset statistics once from real database API
   useEffect(() => {
     let isMounted = true;
     ApiClient.fetchHospitalStatistics().then((res) => {
-      if (isMounted && res) {
+      if (isMounted && res && res.total_hospitals) {
         setStats(res);
       }
     }).catch(console.warn);
@@ -84,14 +86,17 @@ export default function HospitalsScreen({ onNavigate }) {
   // Load filter options (states, care types, categories) and districts for the selected state
   useEffect(() => {
     let isMounted = true;
-    ApiClient.fetchHospitalFilters(selectedState !== "All" ? selectedState : null).then((opts) => {
+    const queryState = selectedState !== "All" ? selectedState : null;
+    ApiClient.fetchHospitalFilters(queryState).then((opts) => {
       if (isMounted && opts) {
         setFilterOptions({
           states: opts.states || [],
           districts: opts.districts || [],
           care_types: opts.care_types || [],
           categories: opts.categories || [],
-          popular_specialties: opts.popular_specialties || []
+          popular_specialties: opts.popular_specialties || [],
+          state_counts: opts.state_counts || {},
+          district_counts: opts.district_counts || {}
         });
       }
     }).catch(console.warn);
@@ -118,7 +123,7 @@ export default function HospitalsScreen({ onNavigate }) {
 
       if (res && res.hospitals) {
         setHospitals(res.hospitals);
-        setTotalRecords(res.total || 0);
+        setTotalRecords(res.total ?? 0);
         setTotalPages(res.total_pages || Math.max(1, Math.ceil((res.total || 0) / pageSize)));
       } else {
         setHospitals([]);
@@ -137,7 +142,7 @@ export default function HospitalsScreen({ onNavigate }) {
     fetchHospitalsList();
   }, [fetchHospitalsList]);
 
-  // Reset page to 1 whenever filters change
+  // Reset page to 1 and clear invalid district when state changes
   const handleStateChange = (e) => {
     setSelectedState(e.target.value);
     setSelectedDistrict("All");
@@ -171,7 +176,7 @@ export default function HospitalsScreen({ onNavigate }) {
   };
 
   const handleResetFilters = () => {
-    setSelectedState("Telangana");
+    setSelectedState("All");
     setSelectedDistrict("All");
     setSelectedCareType("All");
     setSelectedCategory("All");
@@ -207,14 +212,14 @@ export default function HospitalsScreen({ onNavigate }) {
               Hospital Directory
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              Verified registry of 30,000+ public and private healthcare facilities across India from the National Health Portal (MoHFW).
+              Verified registry of {stats.total_hospitals.toLocaleString()} public and private healthcare facilities across India from the National Health Portal (MoHFW).
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shadow-sm">
               <Database className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{stats.total_hospitals.toLocaleString()} Registered Hospitals</span>
+              <span>{stats.total_hospitals.toLocaleString()} Registered Facilities</span>
             </span>
           </div>
         </div>
@@ -229,7 +234,7 @@ export default function HospitalsScreen({ onNavigate }) {
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-500">
             <span><strong>36</strong> States & UTs</span>
-            <span><strong>{stats.districts_count}</strong> Districts</span>
+            <span><strong>{stats.districts_count}</strong> Documented Districts</span>
             <span>Unrecorded ratings & accreditations shown as <em>"Not available"</em></span>
           </div>
         </div>
@@ -290,7 +295,7 @@ export default function HospitalsScreen({ onNavigate }) {
         {/* Structured Filter Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           
-          {/* State Dropdown */}
+          {/* State Dropdown with Real Database Counts */}
           <div className="space-y-1">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">State / UT</label>
             <select
@@ -298,14 +303,19 @@ export default function HospitalsScreen({ onNavigate }) {
               onChange={handleStateChange}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             >
-              <option value="All">All States / UTs ({filterOptions.states.length})</option>
-              {filterOptions.states.map((st) => (
-                <option key={st} value={st}>{st}</option>
-              ))}
+              <option value="All">All States / UTs ({stats.total_hospitals.toLocaleString()})</option>
+              {filterOptions.states.map((st) => {
+                const count = filterOptions.state_counts?.[st];
+                return (
+                  <option key={st} value={st}>
+                    {st} {count ? `(${count.toLocaleString()})` : ''}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
-          {/* District Dropdown */}
+          {/* District Dropdown (dynamically scoped to selected state) */}
           <div className="space-y-1">
             <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">District</label>
             <select
@@ -313,16 +323,23 @@ export default function HospitalsScreen({ onNavigate }) {
               onChange={handleDistrictChange}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             >
-              <option value="All">All Districts ({filterOptions.districts.length})</option>
-              {filterOptions.districts.map((dst) => (
-                <option key={dst} value={dst}>{dst}</option>
-              ))}
+              <option value="All">
+                {selectedState === "All" ? "All Districts" : `All Districts in ${selectedState}`}
+              </option>
+              {filterOptions.districts.map((dst) => {
+                const count = filterOptions.district_counts?.[dst];
+                return (
+                  <option key={dst} value={dst}>
+                    {dst} {count ? `(${count.toLocaleString()})` : ''}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
           {/* Care Type Dropdown */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Care Type</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Facility Type</label>
             <select
               value={selectedCareType}
               onChange={handleCareTypeChange}
@@ -337,7 +354,7 @@ export default function HospitalsScreen({ onNavigate }) {
 
           {/* Category Dropdown */}
           <div className="space-y-1">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Ownership Category</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Ownership</label>
             <select
               value={selectedCategory}
               onChange={handleCategoryChange}
@@ -373,7 +390,7 @@ export default function HospitalsScreen({ onNavigate }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
         <div className="font-bold text-slate-800 dark:text-slate-200">
           {loading ? (
-            <span>Searching hospital registry...</span>
+            <span>Querying verified hospital registry...</span>
           ) : (
             <span>
               Showing {startIdx.toLocaleString()}–{endIdx.toLocaleString()} of {totalRecords.toLocaleString()} Hospitals
@@ -456,9 +473,13 @@ export default function HospitalsScreen({ onNavigate }) {
             <Building2 className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">No Hospitals Match Current Filters</h3>
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+              {selectedState !== "All"
+                ? `No Hospitals Found in ${selectedState}`
+                : "No Hospitals Match Current Filters"}
+            </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              No hospital records found in the registry for this combination of location, specialty, or search criteria.
+              No hospital records found in the registry for this combination of state, district, or filter criteria.
             </p>
           </div>
           <button

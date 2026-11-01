@@ -239,7 +239,7 @@ export class ApiClient {
   static async fetchImportedHospitals({
     page = 1,
     pageSize = 20,
-    state = "Telangana",
+    state,
     district,
     city,
     careType,
