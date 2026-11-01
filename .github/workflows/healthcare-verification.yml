@@ -7,7 +7,7 @@ on:
       - 'frontend/**'
       - '.github/workflows/healthcare-verification.yml'
   push:
-    branches: [main, feature/healthcare-data]
+    branches: [main, dev, feature/healthcare-data]
     paths:
       - 'backend/**'
       - 'frontend/**'
