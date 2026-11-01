@@ -8,3 +8,4 @@ router = APIRouter()
 @router.post("/network/match", response_model=NetworkMatchResponse, summary="Match hospital and insurance network")
 def match_hospital_insurance_network(payload: NetworkMatchRequest) -> NetworkMatchResponse:
     return NetworkService.match_network(payload)
+

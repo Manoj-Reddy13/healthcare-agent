@@ -39,3 +39,4 @@ class OutOfPocketResponse(BaseModel):
     financial_insights: list[str] = Field(default_factory=list)
     data_mode: str = "indicative_actuarial_model"
     disclaimer: str
+

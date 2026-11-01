@@ -125,11 +125,30 @@ AVAILABLE_TOOLS_SCHEMA = [
 
 def execute_search_hospitals(arguments: dict[str, Any]) -> dict[str, Any]:
     city = arguments.get("city")
+    state = arguments.get("state")
+    district = arguments.get("district")
     specialty = arguments.get("specialty")
     max_budget = arguments.get("max_budget")
     scheme = arguments.get("scheme")
     pincode = arguments.get("pincode")
     hospital_type = arguments.get("hospital_type")
+    query = arguments.get("query")
+
+    # If district or state or query is specified, search the 30,000+ real hospital database
+    if state or district or query:
+        real_matches = HospitalService.search_keyword(
+            query=query or specialty or city or district or "Hospital",
+            state=state,
+            district=district,
+            limit=10
+        )
+        if real_matches:
+            return {
+                "count": len(real_matches),
+                "hospitals": [h.model_dump() for h in real_matches],
+                "data_source": "National Health Portal (NHP) Open Government Data CSV"
+            }
+
     hospitals = HospitalService.search_hospitals(
         city=city,
         specialty=specialty,
@@ -138,6 +157,21 @@ def execute_search_hospitals(arguments: dict[str, Any]) -> dict[str, Any]:
         pincode=pincode,
         hospital_type=hospital_type
     )
+
+    # If legacy search returned empty, fall back to real dataset search
+    if not hospitals and (city or specialty):
+        real_matches = HospitalService.search_keyword(
+            query=specialty or city or "Hospital",
+            district=city,
+            limit=10
+        )
+        if real_matches:
+            return {
+                "count": len(real_matches),
+                "hospitals": [h.model_dump() for h in real_matches],
+                "data_source": "National Health Portal (NHP) Open Government Data CSV"
+            }
+
     return {
         "count": len(hospitals),
         "hospitals": [h.model_dump() for h in hospitals]
@@ -145,8 +179,11 @@ def execute_search_hospitals(arguments: dict[str, Any]) -> dict[str, Any]:
 
 def execute_get_hospital_details(arguments: dict[str, Any]) -> dict[str, Any]:
     hospital_id = arguments.get("hospital_id", "")
-    hosp = HospitalService.get_hospital_by_id(hospital_id)
+    hosp = HospitalService.get_imported_hospital_by_id(hospital_id)
     if not hosp:
+        legacy = HospitalService.get_hospital_by_id(hospital_id)
+        if legacy:
+            return {"hospital": legacy.model_dump()}
         return {"error": f"Hospital '{hospital_id}' not found"}
     return {"hospital": hosp.model_dump()}
 

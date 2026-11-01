@@ -202,3 +202,38 @@ def test_diseases_and_network_and_calculator_endpoints():
     assert calc_data["final_out_of_pocket"] > 0
     assert len(calc_data["deduction_steps"]) >= 3
 
+def test_imported_hospital_apis():
+    # 1. Statistics
+    stat_res = client.get("/api/hospitals/statistics")
+    assert stat_res.status_code == 200
+    stat_data = stat_res.json()
+    assert stat_data["total_hospitals"] >= 30000
+    assert stat_data["states_count"] >= 30
+
+    # 2. Filters
+    filt_res = client.get("/api/hospitals/filters?state=Telangana")
+    assert filt_res.status_code == 200
+    filt_data = filt_res.json()
+    assert len(filt_data["districts"]) > 0
+    assert len(filt_data["states"]) > 0
+
+    # 3. Search
+    search_res = client.get("/api/hospitals/search?query=Apollo&district=Hyderabad")
+    assert search_res.status_code == 200
+    assert len(search_res.json()) > 0
+
+    # 4. Paginated listing
+    page_res = client.get("/api/hospitals?page=1&page_size=10&state=Telangana")
+    assert page_res.status_code == 200
+    page_data = page_res.json()
+    assert page_data["total"] >= 1000
+    assert len(page_data["hospitals"]) == 10
+
+    # 5. Single imported hospital detail
+    detail_res = client.get("/api/hospitals/nhp-564")
+    assert detail_res.status_code == 200
+    h_detail = detail_res.json()
+    assert "Apollo" in h_detail["name"]
+    assert h_detail["pincode"] == "500033"
+
+

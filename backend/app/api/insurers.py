@@ -43,3 +43,4 @@ def compare_policies(payload: PolicyComparisonRequest) -> PolicyComparisonRespon
         return InsuranceService.compare_policies(payload)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+

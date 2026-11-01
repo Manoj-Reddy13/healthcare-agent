@@ -1,465 +1,509 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Award,
+  AlertCircle,
   Building2,
-  CalendarCheck,
-  Check,
+  Calendar,
   CheckCircle2,
-  ChevronDown,
-  Columns,
+  ChevronLeft,
+  ChevronRight,
+  Database,
   ExternalLink,
   Filter,
-  Heart,
-  Loader2,
+  Info,
+  Layers,
   MapPin,
   Navigation,
   Phone,
   RotateCcw,
   Search,
-  Shield,
   ShieldCheck,
   Sparkles,
-  Star,
+  Stethoscope,
   X
 } from 'lucide-react';
 import { ApiClient } from '../api/client';
 import { useHealthcare } from '../context/HealthcareContext';
 import { formatINR } from '../utils/formatters';
 
-const SPECIALTIES_LIST = [
-  "All",
-  "Cardiology",
-  "Orthopedics",
-  "Oncology",
-  "Neurology",
-  "Nephrology",
-  "General Medicine",
-  "Pediatrics",
-  "Emergency Medicine"
-];
-
 export default function HospitalsScreen({ onNavigate }) {
   const { city, setActiveHospitalDetails, setSelectedHospitalForBooking } = useHealthcare();
+
+  // Statistics & Provenance Metadata
+  const [stats, setStats] = useState({
+    total_hospitals: 30273,
+    states_count: 36,
+    districts_count: 734,
+    hospitals_with_phone: 2197,
+    hospitals_with_coordinates: 10843,
+    hospitals_with_specialties: 990,
+    data_source: "National Health Portal (NHP) Open Government Data CSV (Ministry of Health and Family Welfare)",
+    import_date: "2026-11-01"
+  });
+
+  // Filter Options Loaded from Backend
+  const [filterOptions, setFilterOptions] = useState({
+    states: [],
+    districts: [],
+    care_types: [],
+    categories: [],
+    popular_specialties: []
+  });
+
+  // Active Query Parameters
+  const [selectedState, setSelectedState] = useState("Telangana");
+  const [selectedDistrict, setSelectedDistrict] = useState("All");
+  const [selectedCareType, setSelectedCareType] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedSpecialty, setSelectedSpecialty] = useState("All");
+  const [pincodeInput, setPincodeInput] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortBy, setSortBy] = useState("name_asc");
+
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Results & UI State
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Top Search Bar Filters
-  const [selectedSpecialty, setSelectedSpecialty] = useState("All");
-  const [selectedDistance, setSelectedDistance] = useState("10");
-  const [selectedType, setSelectedType] = useState("All");
-  const [searchKeyword, setSearchKeyword] = useState("");
+  // Load dataset statistics once
+  useEffect(() => {
+    let isMounted = true;
+    ApiClient.fetchHospitalStatistics().then((res) => {
+      if (isMounted && res) {
+        setStats(res);
+      }
+    }).catch(console.warn);
+    return () => { isMounted = false; };
+  }, []);
 
-  // Left Sidebar Multi-select Filters
-  const [typeFilters, setTypeFilters] = useState({
-    Government: false,
-    Private: false,
-    Trust: false
-  });
+  // Load filter options (states, care types, categories) and districts for the selected state
+  useEffect(() => {
+    let isMounted = true;
+    ApiClient.fetchHospitalFilters(selectedState !== "All" ? selectedState : null).then((opts) => {
+      if (isMounted && opts) {
+        setFilterOptions({
+          states: opts.states || [],
+          districts: opts.districts || [],
+          care_types: opts.care_types || [],
+          categories: opts.categories || [],
+          popular_specialties: opts.popular_specialties || []
+        });
+      }
+    }).catch(console.warn);
+    return () => { isMounted = false; };
+  }, [selectedState]);
 
-  const [accreditationFilters, setAccreditationFilters] = useState({
-    NABH: false,
-    NABL: false,
-    JCI: false
-  });
-
-  const [schemeFilters, setSchemeFilters] = useState({
-    "Ayushman Bharat (PM-JAY)": false,
-    "Aarogyasri": false,
-    "CGHS": false,
-    "ESIC": false
-  });
-
-  const [sortBy, setSortBy] = useState("relevance");
-
-  // Comparison State
-  const [compareList, setCompareList] = useState([]);
-  const [isCompareOpen, setIsCompareOpen] = useState(false);
-  const [compareData, setCompareData] = useState(null);
-  const [compareProcedure, setCompareProcedure] = useState("Angioplasty");
-
-  const loadData = async () => {
+  // Fetch Hospitals from Database
+  const fetchHospitalsList = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await ApiClient.fetchHospitals({
-        city,
-        specialty: selectedSpecialty !== "All" ? selectedSpecialty : undefined
+      const res = await ApiClient.fetchImportedHospitals({
+        page,
+        pageSize,
+        state: selectedState !== "All" ? selectedState : undefined,
+        district: selectedDistrict !== "All" ? selectedDistrict : undefined,
+        careType: selectedCareType !== "All" ? selectedCareType : undefined,
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+        specialty: selectedSpecialty !== "All" ? selectedSpecialty : undefined,
+        pincode: pincodeInput.trim() || undefined,
+        search: searchKeyword.trim() || undefined,
+        sortBy
       });
-      setHospitals(data.hospitals || []);
+
+      if (res && res.hospitals) {
+        setHospitals(res.hospitals);
+        setTotalRecords(res.total || 0);
+        setTotalPages(res.total_pages || Math.max(1, Math.ceil((res.total || 0) / pageSize)));
+      } else {
+        setHospitals([]);
+        setTotalRecords(0);
+        setTotalPages(1);
+      }
     } catch (err) {
-      setError("Unable to load hospitals. Using regional verified backup fixtures.");
+      console.error("Failed to load hospitals:", err);
+      setError("Unable to connect to the hospital database. Please verify backend connection or try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, selectedState, selectedDistrict, selectedCareType, selectedCategory, selectedSpecialty, pincodeInput, searchKeyword, sortBy]);
 
   useEffect(() => {
-    loadData();
-  }, [city, selectedSpecialty]);
+    fetchHospitalsList();
+  }, [fetchHospitalsList]);
 
-  // Derived filtered & sorted list
-  const filteredHospitals = useMemo(() => {
-    let list = [...hospitals];
+  // Reset page to 1 whenever filters change
+  const handleStateChange = (e) => {
+    setSelectedState(e.target.value);
+    setSelectedDistrict("All");
+    setPage(1);
+  };
 
-    // Search keyword / PIN code filter
-    if (searchKeyword.trim()) {
-      const q = searchKeyword.toLowerCase();
-      list = list.filter(h =>
-        h.name.toLowerCase().includes(q) ||
-        h.address.toLowerCase().includes(q) ||
-        (h.pincode && h.pincode.includes(q)) ||
-        (h.locality && h.locality.toLowerCase().includes(q)) ||
-        h.specialties?.some(s => s.toLowerCase().includes(q))
-      );
-    }
+  const handleDistrictChange = (e) => {
+    setSelectedDistrict(e.target.value);
+    setPage(1);
+  };
 
-    // Distance filter
-    if (selectedDistance !== "all") {
-      const maxDist = parseFloat(selectedDistance);
-      list = list.filter(h => (h.distance_km || 5) <= maxDist);
-    }
+  const handleCareTypeChange = (e) => {
+    setSelectedCareType(e.target.value);
+    setPage(1);
+  };
 
-    // Top Dropdown Type filter
-    if (selectedType !== "All") {
-      list = list.filter(h => {
-        const hType = (h.hospital_type || (h.name.toLowerCase().includes("nims") || h.name.toLowerCase().includes("government") ? "Government" : "Private")).toLowerCase();
-        return hType === selectedType.toLowerCase();
-      });
-    }
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setPage(1);
+  };
 
-    // Left Sidebar Type Checkboxes
-    const activeTypes = Object.entries(typeFilters).filter(([_, v]) => v).map(([k]) => k.toLowerCase());
-    if (activeTypes.length > 0) {
-      list = list.filter(h => {
-        const hType = (h.hospital_type || (h.name.toLowerCase().includes("nims") || h.name.toLowerCase().includes("government") ? "Government" : "Private")).toLowerCase();
-        return activeTypes.includes(hType);
-      });
-    }
+  const handleSpecialtyChange = (e) => {
+    setSelectedSpecialty(e.target.value);
+    setPage(1);
+  };
 
-    // Accreditation checkboxes
-    const activeAcc = Object.entries(accreditationFilters).filter(([_, v]) => v).map(([k]) => k);
-    if (activeAcc.length > 0) {
-      list = list.filter(h =>
-        activeAcc.every(acc => h.accreditation?.includes(acc))
-      );
-    }
-
-    // Scheme checkboxes
-    const activeSchemes = Object.entries(schemeFilters).filter(([_, v]) => v).map(([k]) => k);
-    if (activeSchemes.length > 0) {
-      list = list.filter(h =>
-        activeSchemes.some(sch => h.accepted_schemes?.some(s => s.toLowerCase().includes(sch.toLowerCase())))
-      );
-    }
-
-    // Sorting
-    if (sortBy === "rating") {
-      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (sortBy === "distance") {
-      list.sort((a, b) => (a.distance_km || 99) - (b.distance_km || 99));
-    }
-
-    return list;
-  }, [hospitals, searchKeyword, selectedDistance, selectedType, typeFilters, accreditationFilters, schemeFilters, sortBy]);
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault();
+    setPage(1);
+    fetchHospitalsList();
+  };
 
   const handleResetFilters = () => {
+    setSelectedState("Telangana");
+    setSelectedDistrict("All");
+    setSelectedCareType("All");
+    setSelectedCategory("All");
     setSelectedSpecialty("All");
-    setSelectedDistance("all");
-    setSelectedType("All");
+    setPincodeInput("");
     setSearchKeyword("");
-    setTypeFilters({ Government: false, Private: false, Trust: false });
-    setAccreditationFilters({ NABH: false, NABL: false, JCI: false });
-    setSchemeFilters({
-      "Ayushman Bharat (PM-JAY)": false,
-      "Aarogyasri": false,
-      "CGHS": false,
-      "ESIC": false
-    });
-    setSortBy("relevance");
+    setSortBy("name_asc");
+    setPage(1);
   };
 
-  const toggleCompare = (hospitalId) => {
-    if (compareList.includes(hospitalId)) {
-      setCompareList(compareList.filter(id => id !== hospitalId));
-    } else {
-      if (compareList.length >= 3) {
-        alert("You can compare up to 3 hospitals simultaneously.");
-        return;
-      }
-      setCompareList([...compareList, hospitalId]);
-    }
+  const formatPhone = (hosp) => {
+    if (hosp.telephone && hosp.telephone !== "Not available") return hosp.telephone;
+    if (hosp.mobile_number && hosp.mobile_number !== "Not available") return hosp.mobile_number;
+    if (hosp.phone && hosp.phone !== "Not available") return hosp.phone;
+    return "Not available";
   };
 
-  const openComparisonModal = async () => {
-    if (compareList.length < 2) {
-      alert("Please select at least 2 hospitals to compare.");
-      return;
-    }
-    const res = await ApiClient.compareHospitals(compareList, compareProcedure);
-    setCompareData(res);
-    setIsCompareOpen(true);
-  };
+  const startIdx = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endIdx = Math.min(page * pageSize, totalRecords);
 
   return (
     <div className="space-y-6 pb-20">
-      
-      {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-            <Building2 className="w-4 h-4" />
-            <span>Hospital Discovery & Verification</span>
+
+      {/* 1. Header & Dataset Provenance Banner */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+              <Building2 className="w-4 h-4" />
+              <span>National Healthcare Directory & Facilities Registry</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Hospital Directory
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Verified registry of 30,000+ public and private healthcare facilities across India from the National Health Portal (MoHFW).
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Find & Compare Hospitals
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Search accredited hospitals by locality, PIN code, medical specialty, and verified government scheme empanelment.
-          </p>
+
+          <div className="flex items-center gap-2">
+            <span className="px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shadow-sm">
+              <Database className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{stats.total_hospitals.toLocaleString()} Registered Hospitals</span>
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {compareList.length > 0 && (
-            <button
-              onClick={openComparisonModal}
-              className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
-            >
-              <Columns className="w-3.5 h-3.5" />
-              <span>Compare Selected ({compareList.length}/3)</span>
-            </button>
-          )}
-          <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
-            {filteredHospitals.length} Facilities
-          </span>
+        {/* Provenance Strip */}
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-teal-600 shrink-0" />
+            <span>
+              <strong>Verified Data Source:</strong> {stats.data_source} (Import Date: {stats.import_date})
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+            <span><strong>36</strong> States & UTs</span>
+            <span><strong>{stats.districts_count}</strong> Districts</span>
+            <span>Unrecorded ratings & accreditations shown as <em>"Not available"</em></span>
+          </div>
         </div>
       </div>
 
-      {/* 2. Top Search & Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      {/* 2. Search & Filter Bar */}
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        
+        {/* Top Search Form */}
+        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
           
-          {/* Location / Keyword / PIN Input */}
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-emerald-600 absolute left-3 top-3 pointer-events-none" />
+          {/* Free Text Search */}
+          <div className="md:col-span-6 relative">
+            <Search className="w-4 h-4 text-emerald-600 absolute left-3 top-3 pointer-events-none" />
             <input
               type="text"
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              placeholder={`Locality or PIN (e.g., 500033)...`}
-              className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="Search hospital name, address, or location..."
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
-          {/* Specialty Dropdown */}
-          <div>
-            <select
-              value={selectedSpecialty}
-              onChange={(e) => setSelectedSpecialty(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              {SPECIALTIES_LIST.map((spec) => (
-                <option key={spec} value={spec}>
-                  {spec === "All" ? "All Specialties" : spec}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Distance Dropdown */}
-          <div>
-            <select
-              value={selectedDistance}
-              onChange={(e) => setSelectedDistance(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="5">Within 5 km</option>
-              <option value="10">Within 10 km</option>
-              <option value="25">Within 25 km</option>
-              <option value="all">Any Distance</option>
-            </select>
-          </div>
-
-          {/* Hospital Type Dropdown */}
-          <div>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="All">All Hospital Types</option>
-              <option value="Government">Government / Autonomous</option>
-              <option value="Private">Private Corporate</option>
-              <option value="Trust">Trust & Institutes</option>
-            </select>
+          {/* PIN Code Search */}
+          <div className="md:col-span-3 relative">
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+            <input
+              type="text"
+              value={pincodeInput}
+              onChange={(e) => setPincodeInput(e.target.value)}
+              placeholder="PIN Code (e.g. 500034)"
+              maxLength={6}
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
           </div>
 
           {/* Search Button */}
-          <button
-            onClick={() => loadData()}
-            className="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-          >
-            <Search className="w-3.5 h-3.5" />
-            <span>Search</span>
-          </button>
-
-        </div>
-      </div>
-
-      {/* 3. Main Body: Left Filters Sidebar + Right Hospital Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        
-        {/* Left Filter Panel */}
-        <aside className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-emerald-600" />
-              <span className="font-bold text-sm text-slate-900 dark:text-white">Filters</span>
-            </div>
+          <div className="md:col-span-3 flex items-center gap-2">
             <button
-              onClick={handleResetFilters}
-              className="text-xs text-slate-400 hover:text-emerald-600 flex items-center gap-1 font-semibold"
+              type="submit"
+              className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
             >
-              <RotateCcw className="w-3 h-3" />
-              <span>Reset</span>
+              <Search className="w-3.5 h-3.5" />
+              <span>Search Database</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              title="Reset all filters"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Type Filter */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Hospital Type</h4>
-            {Object.keys(typeFilters).map((type) => (
-              <label key={type} className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                <span className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={typeFilters[type]}
-                    onChange={(e) => setTypeFilters({ ...typeFilters, [type]: e.target.checked })}
-                    className="rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
-                  />
-                  <span>{type}</span>
-                </span>
-              </label>
-            ))}
-          </div>
+        </form>
 
-          {/* Accreditation Filter */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Accreditation</h4>
-            {Object.keys(accreditationFilters).map((acc) => (
-              <label key={acc} className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                <span className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={accreditationFilters[acc]}
-                    onChange={(e) => setAccreditationFilters({ ...accreditationFilters, [acc]: e.target.checked })}
-                    className="rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
-                  />
-                  <span>{acc}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-
-          {/* Scheme Empanelment */}
-          <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Supported Schemes</h4>
-            {Object.keys(schemeFilters).map((sch) => (
-              <label key={sch} className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
-                <span className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={schemeFilters[sch]}
-                    onChange={(e) => setSchemeFilters({ ...schemeFilters, [sch]: e.target.checked })}
-                    className="rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
-                  />
-                  <span>{sch}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </aside>
-
-        {/* Right Hospital Cards List */}
-        <main className="lg:col-span-3 space-y-4">
+        {/* Structured Filter Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           
-          {/* Results Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
-            <div className="font-bold text-slate-800 dark:text-slate-200">
-              <span>{filteredHospitals.length} Hospitals Found</span>
-              <span className="text-slate-400 font-normal ml-1">in {city}</span>
-            </div>
-
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <span className="text-slate-400 font-medium">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-700 dark:text-slate-300 focus:outline-none"
-              >
-                <option value="relevance">Relevance</option>
-                <option value="rating">Rating: High to Low</option>
-                <option value="distance">Distance: Nearest</option>
-              </select>
-            </div>
+          {/* State Dropdown */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">State / UT</label>
+            <select
+              value={selectedState}
+              onChange={handleStateChange}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">All States / UTs ({filterOptions.states.length})</option>
+              {filterOptions.states.map((st) => (
+                <option key={st} value={st}>{st}</option>
+              ))}
+            </select>
           </div>
 
-          {/* Loading Skeleton */}
-          {loading && (
-            <div className="space-y-4">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse space-y-3">
-                  <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-2/3" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
-                </div>
+          {/* District Dropdown */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">District</label>
+            <select
+              value={selectedDistrict}
+              onChange={handleDistrictChange}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">All Districts ({filterOptions.districts.length})</option>
+              {filterOptions.districts.map((dst) => (
+                <option key={dst} value={dst}>{dst}</option>
               ))}
-            </div>
-          )}
+            </select>
+          </div>
 
-          {/* Empty State */}
-          {!loading && filteredHospitals.length === 0 && (
-            <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
-                <Building2 className="w-8 h-8" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-base text-slate-900 dark:text-white">No Hospitals Match Filter Criteria</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto">
-                  Try relaxing your distance range, selecting "All Specialties", or clearing specific scheme filters.
-                </p>
-              </div>
-              <button
-                onClick={handleResetFilters}
-                className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700"
-              >
-                Clear All Filters
-              </button>
-            </div>
-          )}
+          {/* Care Type Dropdown */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Care Type</label>
+            <select
+              value={selectedCareType}
+              onChange={handleCareTypeChange}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">All Facility Types</option>
+              {filterOptions.care_types.map((ct) => (
+                <option key={ct} value={ct}>{ct}</option>
+              ))}
+            </select>
+          </div>
 
-          {/* Hospital Cards */}
-          {!loading && filteredHospitals.map((hosp) => {
-            const isGov = (hosp.hospital_type || "").toLowerCase() === "government" || hosp.name.toLowerCase().includes("nims") || hosp.name.toLowerCase().includes("government");
-            const isCompared = compareList.includes(hosp.id);
-            const mapsUrl = hosp.directions_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hosp.name + " " + hosp.address)}`;
+          {/* Category Dropdown */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Ownership Category</label>
+            <select
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">Public & Private</option>
+              {filterOptions.categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Specialty Dropdown */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Specialty</label>
+            <select
+              value={selectedSpecialty}
+              onChange={handleSpecialtyChange}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            >
+              <option value="All">All Specialties</option>
+              {filterOptions.popular_specialties.map((spec) => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* 3. Results Header & Sorting Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+        <div className="font-bold text-slate-800 dark:text-slate-200">
+          {loading ? (
+            <span>Searching hospital registry...</span>
+          ) : (
+            <span>
+              Showing {startIdx.toLocaleString()}–{endIdx.toLocaleString()} of {totalRecords.toLocaleString()} Hospitals
+              {selectedState !== "All" && <span className="text-emerald-600 font-semibold ml-1">in {selectedState}</span>}
+              {selectedDistrict !== "All" && <span className="text-slate-400 font-normal"> ({selectedDistrict})</span>}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-medium">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-700 dark:text-slate-300 focus:outline-none"
+            >
+              <option value="name_asc">Hospital Name (A → Z)</option>
+              <option value="name_desc">Hospital Name (Z → A)</option>
+              <option value="district_asc">District Name</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium focus:outline-none"
+            >
+              <option value="10">10 / page</option>
+              <option value="20">20 / page</option>
+              <option value="50">50 / page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Error Message */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={() => fetchHospitalsList()}
+            className="px-3 py-1.5 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* 5. Loading Skeleton */}
+      {loading && (
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div key={n} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20" />
+              </div>
+              <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-2/3" />
+              <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 6. Empty State */}
+      {!loading && hospitals.length === 0 && (
+        <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+            <Building2 className="w-8 h-8" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">No Hospitals Match Current Filters</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              No hospital records found in the registry for this combination of location, specialty, or search criteria.
+            </p>
+          </div>
+          <button
+            onClick={handleResetFilters}
+            className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700"
+          >
+            Reset Filters
+          </button>
+        </div>
+      )}
+
+      {/* 7. Hospital Records List */}
+      {!loading && hospitals.length > 0 && (
+        <div className="space-y-4">
+          {hospitals.map((hosp) => {
+            const isGov = (hosp.category || hosp.hospital_type || "").toLowerCase().includes("public") ||
+              (hosp.category || hosp.hospital_type || "").toLowerCase().includes("government") ||
+              hosp.name.toLowerCase().includes("government") ||
+              hosp.name.toLowerCase().includes("nims");
+
+            const phone = formatPhone(hosp);
+            const mapsUrl = hosp.directions_url ||
+              (hosp.latitude && hosp.longitude
+                ? `https://www.google.com/maps/search/?api=1&query=${hosp.latitude},${hosp.longitude}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hosp.name + " " + (hosp.district || hosp.state || ""))}`);
+
+            const hasSpecialties = hosp.specialties && hosp.specialties.length > 0;
 
             return (
               <div
                 key={hosp.id}
                 className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col md:flex-row items-start justify-between gap-5"
               >
-                {/* Left: Thumbnail & Core Info */}
+                {/* Left: Thumbnail & Core Details */}
                 <div className="flex items-start gap-4 flex-1">
                   
-                  {/* Hospital Icon/Image Badge */}
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-900 text-white flex items-center justify-center shrink-0 border border-slate-700 shadow-sm">
-                    <Building2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-400" />
+                  {/* Facility Icon / Badge */}
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-900 text-white flex items-center justify-center shrink-0 border border-slate-700 shadow-sm">
+                    <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400" />
                   </div>
 
-                  {/* Hospital Details */}
-                  <div className="space-y-2 flex-1">
+                  {/* Details Body */}
+                  <div className="space-y-2 flex-1 min-w-0">
                     
+                    {/* Header Badges */}
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
                         {hosp.name}
@@ -467,30 +511,37 @@ export default function HospitalsScreen({ onNavigate }) {
 
                       {isGov ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200">
-                          Government
+                          Public / Government
                         </span>
                       ) : (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200">
-                          {hosp.hospital_type || "Private"}
+                          {hosp.category || hosp.hospital_type || "Private"}
                         </span>
                       )}
 
-                      {hosp.accreditation?.map((acc) => (
-                        <span
-                          key={acc}
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200"
-                        >
-                          {acc}
+                      {hosp.care_type && hosp.care_type !== "Not available" && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border border-teal-200">
+                          {hosp.care_type}
                         </span>
-                      ))}
+                      )}
+
+                      {/* Explicit Accreditation Status */}
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500" title="Accreditation status unrecorded in open government registry">
+                        Accreditation: Not available
+                      </span>
                     </div>
 
-                    {/* Location, PIN & Google Maps Link */}
+                    {/* Location, District & PIN */}
                     <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>{hosp.address}</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
-                        ({hosp.distance_km || 4.5} km)
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{hosp.address || `${hosp.district}, ${hosp.state}`}</span>
+                      {hosp.pincode && hosp.pincode !== "Not available" && (
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          (PIN: {hosp.pincode})
+                        </span>
+                      )}
+                      <span className="text-slate-400">
+                        • {hosp.district}, {hosp.state}
                       </span>
                       <a
                         href={mapsUrl}
@@ -499,75 +550,71 @@ export default function HospitalsScreen({ onNavigate }) {
                         className="text-[11px] font-bold text-emerald-600 hover:underline flex items-center gap-1 ml-1"
                       >
                         <Navigation className="w-3 h-3 text-emerald-500" />
-                        <span>Map Directions</span>
+                        <span>Map</span>
                         <ExternalLink className="w-2.5 h-2.5" />
                       </a>
                     </div>
 
-                    {/* Key Specialties Chips */}
+                    {/* Specialties / Clinical Tag Strip */}
                     <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                      {hosp.specialties?.slice(0, 5).map((spec) => (
-                        <span
-                          key={spec}
-                          className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                        >
-                          {spec}
+                      {hasSpecialties ? (
+                        hosp.specialties.slice(0, 4).map((spec) => (
+                          <span
+                            key={spec}
+                            className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          >
+                            {spec}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[11px] text-slate-400 italic">
+                          Specialties not recorded in registry
                         </span>
-                      ))}
+                      )}
+                      {hosp.specialties && hosp.specialties.length > 4 && (
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          +{hosp.specialties.length - 4} more
+                        </span>
+                      )}
                     </div>
 
-                    {/* Schemes Supported */}
-                    <div className="flex items-center gap-2 flex-wrap pt-1.5 text-xs">
-                      <span className="text-[11px] font-bold text-slate-400">Schemes:</span>
-                      {hosp.accepted_schemes?.map((sch) => (
-                        <span
-                          key={sch}
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/80 flex items-center gap-1"
-                        >
-                          <ShieldCheck className="w-3 h-3 text-amber-600" />
-                          <span>{sch}</span>
+                    {/* Data Provenance Attribution */}
+                    <div className="text-[11px] text-slate-400 pt-1">
+                      <span>Source: NHP Open Data Registry ({hosp.import_date || '2026-11-01'})</span>
+                      {hosp.total_beds && (
+                        <span className="ml-2 font-semibold text-slate-600 dark:text-slate-300">
+                          • {hosp.total_beds} Total Beds
                         </span>
-                      ))}
+                      )}
                     </div>
 
                   </div>
 
                 </div>
 
-                {/* Right: Actions, Compare & Phone */}
+                {/* Right: Actions & Phone */}
                 <div className="flex md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 shrink-0">
                   
-                  {/* Rating Badge */}
-                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-xl text-xs font-bold border border-amber-200 dark:border-amber-800">
-                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                    <span>{hosp.rating?.toFixed(1) || '4.5'}</span>
-                  </div>
-
                   {/* Phone */}
-                  <a
-                    href={`tel:${hosp.phone || '+914023607777'}`}
-                    className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-semibold hover:text-emerald-600 transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{hosp.phone || '040-2360 7777'}</span>
-                  </a>
-
-                  {/* Compare Toggle */}
-                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={isCompared}
-                      onChange={() => toggleCompare(hosp.id)}
-                      className="rounded text-teal-600 focus:ring-teal-500"
-                    />
-                    <span>Compare</span>
-                  </label>
+                  <div className="text-xs">
+                    {phone !== "Not available" ? (
+                      <a
+                        href={`tel:${phone}`}
+                        className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold hover:text-emerald-600 transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{phone}</span>
+                      </a>
+                    ) : (
+                      <span className="text-slate-400 text-xs">Phone: Not available</span>
+                    )}
+                  </div>
 
                   {/* Buttons */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setActiveHospitalDetails(hosp)}
-                      className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                      className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors shadow-2xs"
                     >
                       View Details
                     </button>
@@ -575,7 +622,7 @@ export default function HospitalsScreen({ onNavigate }) {
                       onClick={() => setSelectedHospitalForBooking(hosp)}
                       className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-sm"
                     >
-                      Book Demo
+                      Simulate Visit
                     </button>
                   </div>
 
@@ -584,117 +631,40 @@ export default function HospitalsScreen({ onNavigate }) {
               </div>
             );
           })}
+        </div>
+      )}
 
-        </main>
+      {/* 8. Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+          <div className="text-slate-500">
+            Page <span className="font-bold text-slate-900 dark:text-white">{page}</span> of{" "}
+            <span className="font-bold text-slate-900 dark:text-white">{totalPages.toLocaleString()}</span>{" "}
+            ({totalRecords.toLocaleString()} total facilities)
+          </div>
 
-      </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Previous</span>
+            </button>
 
-      {/* 4. Side-by-Side Comparison Modal */}
-      {isCompareOpen && compareData && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setIsCompareOpen(false)}
-        >
-          <div
-            className="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-teal-600 mb-1">
-                  <Columns className="w-4 h-4" />
-                  <span>Hospital Benchmarking</span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                  Side-by-Side Hospital Comparison
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Compare quality accreditations, treatment costs, and public scheme acceptance across chosen facilities.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsCompareOpen(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            <span className="px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">
+              {page}
+            </span>
 
-            {/* Comparison Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {compareData.hospitals.map((h) => (
-                <div
-                  key={h.hospital_id}
-                  className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-4 text-xs"
-                >
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                      {h.hospital_type}
-                    </span>
-                    <h3 className="font-black text-base text-slate-900 dark:text-white pt-1">
-                      {h.name}
-                    </h3>
-                    <p className="text-slate-500">{h.locality}</p>
-                  </div>
-
-                  <div className="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-3">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Rating:</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{h.rating} ★</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Distance:</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{h.distance_km} km</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Consultation Fee:</span>
-                      <span className="font-bold text-emerald-600">{formatINR(h.doctor_consultation_fee)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">{h.procedure} Est.:</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{formatINR(h.indicative_cost)}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-700 pt-3">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Accreditations:</span>
-                    <div className="flex gap-1 flex-wrap">
-                      {h.accreditation?.map((acc) => (
-                        <span key={acc} className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          {acc}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-700 pt-3">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Schemes:</span>
-                    <div className="flex gap-1 flex-wrap">
-                      {h.empanelled_schemes?.map((sch) => (
-                        <span key={sch} className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200">
-                          {sch}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <a
-                      href={h.directions_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 font-bold text-center block text-slate-800 dark:text-slate-200 transition-colors"
-                    >
-                      Get Directions
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
-              * Comparative benchmarks derived from regional tariff registries. Actual charges vary with clinical necessity.
-            </p>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}

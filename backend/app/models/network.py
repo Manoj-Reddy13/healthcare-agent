@@ -36,3 +36,4 @@ class NetworkMatchResponse(BaseModel):
     query_summary: dict[str, Any]
     actionable_advice: list[str] = Field(default_factory=list)
     disclaimer: str
+

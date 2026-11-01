@@ -147,11 +147,17 @@ export class ApiClient {
     };
   }
 
-  static async fetchHospitals({ city, specialty, maxBudget, scheme, pincode, locality, hospitalType, facility, accreditation, sortBy } = {}) {
+  static async fetchHospitals({ city, specialty, maxBudget, scheme, pincode, locality, hospitalType, facility, accreditation, sortBy, page, pageSize, state, district, careType, category, search } = {}) {
     if (!FORCE_MOCK) {
       try {
         const params = new URLSearchParams();
+        if (page) params.append("page", page);
+        if (pageSize) params.append("page_size", pageSize);
+        if (state && state !== "All") params.append("state", state);
+        if (district && district !== "All") params.append("district", district);
         if (city) params.append("city", city);
+        if (careType && careType !== "All") params.append("care_type", careType);
+        if (category && category !== "All") params.append("category", category);
         if (specialty && specialty !== "All") params.append("specialty", specialty);
         if (maxBudget) params.append("max_budget", maxBudget);
         if (scheme && scheme !== "All") params.append("scheme", scheme);
@@ -160,10 +166,11 @@ export class ApiClient {
         if (hospitalType && hospitalType !== "All") params.append("hospital_type", hospitalType);
         if (facility) params.append("facility", facility);
         if (accreditation && accreditation !== "All") params.append("accreditation", accreditation);
+        if (search) params.append("search", search);
         if (sortBy) params.append("sort_by", sortBy);
 
         const url = `${API_BASE_URL}/api/hospitals${params.toString() ? `?${params.toString()}` : ""}`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
         if (res.ok) return await res.json();
       } catch {
         console.warn("Backend unavailable, using client mock hospitals");
@@ -185,6 +192,126 @@ export class ApiClient {
       list = list.filter(h => (h.pincode || "").includes(pincode));
     }
     return { total: list.length, hospitals: list, data_mode: "mock" };
+  }
+
+  static async fetchHospitalFilters(state = null) {
+    if (!FORCE_MOCK) {
+      try {
+        const query = state && state !== "All" ? `?state=${encodeURIComponent(state)}` : "";
+        const res = await fetch(`${API_BASE_URL}/api/hospitals/filters${query}`, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn("fetchHospitalFilters error:", e);
+      }
+    }
+    return {
+      states: ["Telangana", "Andhra Pradesh", "Karnataka", "Maharashtra", "Tamil Nadu"],
+      districts: ["Hyderabad", "Ranga Reddy", "Medchal-Malkajgiri", "Warangal"],
+      care_types: ["Hospital", "Dispensary", "Community Health Centre", "Clinic"],
+      categories: ["Public/ Government", "Private"],
+      popular_specialties: ["General Medicine", "Cardiology", "Orthopedics", "Obstetrics & Gynecology", "Pediatrics", "Ophthalmology", "Dental", "Surgery", "Neurology", "Oncology", "Nephrology", "Dermatology", "ENT", "Psychiatry"],
+      total_hospitals: 30273
+    };
+  }
+
+  static async fetchHospitalStatistics() {
+    if (!FORCE_MOCK) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/hospitals/statistics`, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn("fetchHospitalStatistics error:", e);
+      }
+    }
+    return {
+      total_hospitals: 30273,
+      states_count: 36,
+      districts_count: 734,
+      hospitals_with_phone: 2197,
+      hospitals_with_coordinates: 10843,
+      hospitals_with_specialties: 990,
+      data_source: "National Health Portal (NHP) Open Government Data CSV (Ministry of Health and Family Welfare)",
+      import_date: "2026-11-01",
+      notes: "Imported 30,273 hospital records across 36 Indian States and Union Territories with deduplication and postal verification."
+    };
+  }
+
+  static async fetchImportedHospitals({
+    page = 1,
+    pageSize = 20,
+    state = "Telangana",
+    district,
+    city,
+    careType,
+    category,
+    specialty,
+    pincode,
+    search,
+    sortBy = "name_asc"
+  } = {}) {
+    if (!FORCE_MOCK) {
+      try {
+        const params = new URLSearchParams();
+        if (page) params.append("page", page);
+        if (pageSize) params.append("page_size", pageSize);
+        if (state && state !== "All") params.append("state", state);
+        if (district && district !== "All") params.append("district", district);
+        if (city) params.append("city", city);
+        if (careType && careType !== "All") params.append("care_type", careType);
+        if (category && category !== "All") params.append("category", category);
+        if (specialty && specialty !== "All") params.append("specialty", specialty);
+        if (pincode) params.append("pincode", pincode);
+        if (search) params.append("search", search);
+        if (sortBy) params.append("sort_by", sortBy);
+
+        const url = `${API_BASE_URL}/api/hospitals?${params.toString()}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.warn("fetchImportedHospitals error:", e);
+      }
+    }
+
+    return {
+      total: MOCK_HOSPITALS.length,
+      page: 1,
+      page_size: pageSize,
+      total_pages: 1,
+      hospitals: MOCK_HOSPITALS.map(h => ({
+        id: h.id,
+        name: h.name,
+        state: "Telangana",
+        district: "Hyderabad",
+        subdistrict: "Not available",
+        pincode: h.pincode || "500034",
+        location: h.locality || "Hyderabad",
+        address: h.address,
+        latitude: h.latitude,
+        longitude: h.longitude,
+        care_type: h.hospital_type || "Hospital",
+        category: h.hospital_type || "Private",
+        discipline: "Allopathic",
+        telephone: h.phone || "Not available",
+        mobile_number: "Not available",
+        emergency_num: h.phone || "Not available",
+        ambulance_phone: "108",
+        bloodbank_phone: "Not available",
+        tollfree: "Not available",
+        helpline: "Not available",
+        email: "Not available",
+        website: h.website || "Not available",
+        specialties: h.specialties || [],
+        facilities: h.facilities || [],
+        accreditation: "Not available (unrecorded in registry)",
+        established_year: null,
+        total_beds: null,
+        data_source: "National Health Portal (NHP) Open Data Directory",
+        import_date: "2026-11-01",
+        directions_url: h.directions_url
+      })),
+      data_source: "Local Fallback Registry",
+      filters_applied: {}
+    };
   }
 
   static async fetchHospitalById(hospitalId) {
