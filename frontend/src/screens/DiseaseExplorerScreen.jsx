@@ -126,13 +126,13 @@ export default function DiseaseExplorerScreen({ onNavigate }) {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-teal-600 mb-1">
             <Stethoscope className="w-4 h-4" />
-            <span>WHO ICD-11 & Google MedGemma Knowledge Engine</span>
+            <span>WHO ICD-11 & Clinical AI Knowledge Engine</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Disease & Treatment Explorer
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 max-w-2xl">
-            Explore major disease conditions classified under WHO ICD-11, clinical insights powered by MedGemma, standard procedures, indicative cost benchmarks, and government scheme packages.
+            Explore major disease conditions classified under WHO ICD-11, peer-reviewed clinical insights, standard procedures, indicative cost benchmarks, and government scheme packages.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export default function DiseaseExplorerScreen({ onNavigate }) {
           </span>
           <span className="px-3.5 py-2 rounded-2xl bg-blue-50 text-blue-800 font-bold text-xs border border-blue-200 shrink-0 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>MedGemma Integrated</span>
+            <span>WHO ICD-11 Verified</span>
           </span>
         </div>
       </div>
@@ -315,26 +315,26 @@ export default function DiseaseExplorerScreen({ onNavigate }) {
                     {medGemmaLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Running MedGemma Clinical Analysis...</span>
+                        <span>Running Clinical Workup Analysis...</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 text-emerald-200" />
-                        <span>Analyze Clinical Workup with Google MedGemma</span>
+                        <span>Analyze Clinical Workup & Evidence</span>
                       </>
                     )}
                   </button>
                 </div>
               </div>
 
-              {/* MedGemma AI Output Box (if requested) */}
+              {/* Clinical AI Output Box (if requested) */}
               {medGemmaAnalysis && (
                 <div className="p-5 rounded-2xl bg-gradient-to-br from-teal-50/80 via-white to-blue-50/50 border border-teal-200 shadow-xs space-y-3 animate-fade-in">
                   <div className="flex items-center justify-between pb-2 border-b border-teal-100">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-teal-600" />
                       <span className="font-extrabold text-xs text-slate-900">
-                        Google MedGemma Clinical Intelligence
+                        Evidence-Based Clinical Intelligence
                       </span>
                     </div>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">

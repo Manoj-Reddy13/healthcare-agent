@@ -31,8 +31,12 @@ class ChatResponse(BaseModel):
     eligibility_evaluation: Optional[dict[str, Any]] = None
     confidence_limitations: Optional[str] = None
     last_verification_date: Optional[str] = "2026-10-29"
+    llm_provider: str = "offline-rule-agent"
+    model_id: Optional[str] = None
+    is_live_llm: bool = False
+    session_id: Optional[str] = "demo-session"
     disclaimer: str = (
         "Informational assistance only. This agent does not provide medical diagnoses or prescriptions. "
         "Policy evaluations are informational and do not guarantee claim approval. In case of a medical emergency, call 108 or 112 immediately."
     )
-    data_mode: Literal["mock", "estimated", "verified"] = "verified"
+    data_mode: Literal["mock", "estimated", "verified", "offline-rule-agent"] = "verified"

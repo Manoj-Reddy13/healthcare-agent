@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api import api_router
+from app.services.llm_service import LLMService
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,12 +25,15 @@ app.include_router(api_router, prefix=settings.API_PREFIX)
 @app.get("/api/health", tags=["Health"])
 @app.get("/health", tags=["Health"])
 def health_check():
+    llm_info = LLMService.get_status()
     return {
         "status": "healthy",
         "service": "healthcare-agent-backend",
         "version": settings.VERSION,
-        "llm_provider": "gemini-or-mock",
-        "mock_mode": settings.DATA_MODE == "mock"
+        "llm_provider": llm_info["active_provider"],
+        "model_id": llm_info["model_id"],
+        "is_live_llm": llm_info["is_live_llm"],
+        "mock_mode": not llm_info["is_live_llm"]
     }
 
 @app.get("/", tags=["Root"])

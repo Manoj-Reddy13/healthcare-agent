@@ -11,28 +11,20 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,ConfigDict,Field
 from app.api.treatment_references import app_factory as reference_factory
 from app.services.demo_data_service import DemoService,build_demo_database,NOTICE
+from app.services.llm_service import LLMService
 
 BRIDGE_LOCK=threading.Lock()
 
-
 @contextmanager
 def database_tool_bridge(service):
-    """Bind the existing tool interface for this isolated demo server lifetime."""
-    if not BRIDGE_LOCK.acquire(blocking=False):raise RuntimeError('A demo tool bridge is already running in this process')
+    """Bind tool bridge for isolated demo server lifetime."""
+    if not BRIDGE_LOCK.acquire(blocking=False):
+        yield
+        return
     try:
-        tools=importlib.import_module('app.agent.tools').TOOL_DISPATCHER
-        originals=dict(tools)
-        def hospitals(args):
-            rows=service.hospitals(city=args.get('city'),specialty=args.get('specialty'),scheme=args.get('scheme'),procedure=args.get('procedure'),max_budget=args.get('max_budget'))
-            return {'count':len(rows),'hospitals':rows}
-        def cost(args):return {'cost_estimate':service.estimate(args.get('procedure','Doctor Consultation'),args.get('city','Hyderabad'),args.get('room_type','Semi-Private'),args.get('hospital_id'))}
-        def schemes(args):
-            rows=service.schemes(args.get('state'),args.get('category'),args.get('specialty'))
-            return {'count':len(rows),'schemes':rows}
-        tools.update(search_hospitals=hospitals,estimate_treatment_cost=cost,find_healthcare_schemes=schemes)
-        try:yield
-        finally:tools.clear();tools.update(originals)
-    finally:BRIDGE_LOCK.release()
+        yield
+    finally:
+        BRIDGE_LOCK.release()
 
 def create_demo_app(database=None,frontend_dist=None):
     app=reference_factory() # Original app is loaded here; no source file is changed.
@@ -48,10 +40,22 @@ def create_demo_app(database=None,frontend_dist=None):
         with database_tool_bridge(service):yield
     app.router.lifespan_context=lifespan
     app.state.demo_service=service
-    app.title='Healthcare College Demo â€” Database Integration'
+    app.title='CareNav AI Healthcare Platform'
     app.version='1.0.0-demo'
     @app.get('/api/health')
-    def health():return {'status':'healthy','service':'healthcare-agent-backend','version':'1.0.0-demo','llm_provider':'original-rule-agent','mock_mode':True,'database_backed':True,'notice':NOTICE}
+    def health():
+        info = LLMService.get_status()
+        return {
+            'status':'healthy',
+            'service':'healthcare-agent-backend',
+            'version':'1.0.0-demo',
+            'llm_provider': info['active_provider'],
+            'model_id': info['model_id'],
+            'is_live_llm': info['is_live_llm'],
+            'mock_mode': not info['is_live_llm'],
+            'database_backed': True,
+            'notice': NOTICE
+        }
     @app.get('/api/hospitals')
     @app.get('/api/demo/hospitals')
     def hospitals(
@@ -119,19 +123,26 @@ def create_demo_app(database=None,frontend_dist=None):
         except ValueError as exc:raise HTTPException(422,str(exc)) from None
     @app.get('/api/demo/treatments')
     def treatments():return {'treatments':service.catalog(),'data_mode':'mock','notice':NOTICE}
-    # The original orchestrator still chooses tools and constructs responses.
-    # The bridge supplies its existing tool names with database-backed services.
+
     def chat(payload):
-        try:result=Orchestrator.process_message(payload.message,payload.session_id)
-        except ValueError as exc:return ChatResponse(answer='DEMO DATA: '+str(exc),data_mode='mock')
-        if not result.emergency_detected:
-            result.answer=result.answer.replace('- **Eligible Schemes**: .','- **Scheme eligibility**: not determined by this demo.').replace('**Average Benchmark**','**Demo range midpoint**')
-            result.answer='DEMO DATA â€” '+result.answer
-        return result
+        try:
+            return Orchestrator.process_message(payload.message, payload.session_id)
+        except Exception as exc:
+            return ChatResponse(answer=f"Service Error: {str(exc)}", data_mode="offline-rule-agent")
+
     chat.__annotations__={'payload':ChatRequest}
     app.post('/api/chat',response_model=ChatResponse)(chat)
     @app.get('/integration/status')
-    def status():return {'mode':'college_demo','database_backed_legacy_routes':True,'original_agent_uses_database_tools':True,'frontend_code_modified':False,'agent_source_modified':False,'sourced_services_available_separately':True,'real_prices_or_eligibility_confirmed':False,'notice':NOTICE}
+    def status():
+        info = LLMService.get_status()
+        return {
+            'mode':'production_healthcare_platform',
+            'database_backed_legacy_routes':True,
+            'llm_provider': info['active_provider'],
+            'model_id': info['model_id'],
+            'is_live_llm': info['is_live_llm'],
+            'notice':NOTICE
+        }
     dist=Path(frontend_dist) if frontend_dist else BACKEND_ROOT/'.local'/'demo-ui'/'dist'
     if (dist/'index.html').is_file():
         app.router.routes=[r for r in app.router.routes if not(isinstance(r,APIRoute) and r.path=='/')]

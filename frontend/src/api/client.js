@@ -67,84 +67,54 @@ export class ApiClient {
     ];
   }
 
-  static async sendChatMessage(message, sessionId = "demo-session") {
-    if (!FORCE_MOCK) {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message, session_id: sessionId }),
-          signal: AbortSignal.timeout(10000),
-        });
-        if (res.ok) {
-          return await res.json();
-        }
-      } catch {
-        console.warn("Backend unavailable, falling back to local client response");
-      }
+  static async fetchLLMStatus() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/llm/status`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // fallback
     }
-
-    const lower = message.toLowerCase();
-    if (lower.includes("chest pain") || lower.includes("heart attack") || lower.includes("cannot breathe") || lower.includes("stroke")) {
-      return {
-        answer: "🚨 EMERGENCY ALERT: Please call 108 or 112 immediately or rush to the nearest casualty / emergency room. Do not wait for administrative approvals in acute medical emergencies.",
-        emergency_detected: true,
-        tool_calls: [],
-        hospitals: [],
-        cost_estimate: null,
-        schemes: [],
-        requires_confirmation: false,
-        data_mode: "mock",
-        disclaimer: "Informational assistance only. Emergency alert."
-      };
-    }
-
-    if (lower.includes("book") || lower.includes("appointment") || lower.includes("schedule")) {
-      return {
-        answer: "I can help register a simulated appointment request for the educational demo. Please confirm your hospital choice, preferred date, and contact details.",
-        emergency_detected: false,
-        tool_calls: [{ tool: "book_simulated_appointment", arguments: { status: "pending_confirmation" } }],
-        hospitals: MOCK_HOSPITALS.slice(0, 2),
-        cost_estimate: null,
-        schemes: [],
-        requires_confirmation: true,
-        confirmation_prompt: "Please confirm if you would like to proceed with registering this simulated appointment request.",
-        data_mode: "mock",
-        disclaimer: "Simulated booking engine for educational demonstration."
-      };
-    }
-
     return {
-      answer: "Here is a complete overview based on verified regional healthcare benchmarks in Hyderabad. Showing matching accredited hospitals, indicative costs, and applicable government schemes.",
-      emergency_detected: false,
-      tool_calls: [
-        { tool: "search_hospitals", arguments: { city: "Hyderabad" }, result_count: MOCK_HOSPITALS.length },
-        { tool: "estimate_treatment_cost", arguments: { procedure: "Angioplasty" }, result_count: 1 },
-        { tool: "find_healthcare_schemes", arguments: { state: "Telangana" }, result_count: 2 }
-      ],
-      hospitals: MOCK_HOSPITALS.slice(0, 3),
-      cost_estimate: {
-        procedure: "Angioplasty (PTCA with Stenting)",
-        city: "Hyderabad",
-        room_type: "Semi-Private",
-        indicative_range_min: 120000,
-        indicative_range_max: 250000,
-        average_cost: 185000,
-        room_multiplier: 1.0,
-        factors: [
-          "Number of drug-eluting stents (DES)",
-          "Post-op CCU/ICU duration",
-          "Lesion complexity and comorbidities"
-        ],
-        covered_under_schemes: ["Ayushman Bharat (PM-JAY)", "Aarogyasri"],
-        disclaimer: "Indicative range based on tertiary healthcare packages in Hyderabad.",
-        data_mode: "estimated"
-      },
-      schemes: MOCK_SCHEMES.slice(0, 2),
-      requires_confirmation: false,
-      data_mode: "mock",
-      disclaimer: "Informational assistance only. This agent does not provide clinical diagnoses or prescriptions."
+      active_provider: "offline",
+      model_id: "disconnected",
+      is_live_llm: false,
+      status: "disconnected"
     };
+  }
+
+  static async sendChatMessage(message, sessionId = "demo-session") {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, session_id: sessionId }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      const errBody = await res.text();
+      throw new Error(`Backend error (${res.status}): ${errBody || 'Request failed'}`);
+    } catch (e) {
+      const lower = message.toLowerCase();
+      if (lower.includes("chest pain") || lower.includes("heart attack") || lower.includes("cannot breathe") || lower.includes("stroke")) {
+        return {
+          answer: "🚨 EMERGENCY ALERT: Please call 108 or 112 immediately or rush to the nearest casualty / emergency room. Do not wait for administrative approvals in acute medical emergencies.",
+          emergency_detected: true,
+          tool_calls: [],
+          hospitals: [],
+          cost_estimate: null,
+          schemes: [],
+          llm_provider: "emergency-safety-triage",
+          requires_confirmation: false,
+          data_mode: "verified",
+          disclaimer: "Informational assistance only. Emergency alert."
+        };
+      }
+      throw e;
+    }
   }
 
   static async fetchHospitals({ city, specialty, maxBudget, scheme, pincode, locality, hospitalType, facility, accreditation, sortBy, page, pageSize, state, district, careType, category, search } = {}) {

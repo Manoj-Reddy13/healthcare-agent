@@ -117,11 +117,20 @@ export default function NavigatorScreen({ onNavigate }) {
 
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [llmStatus, setLlmStatus] = useState({
+    active_provider: 'checking',
+    model_id: '',
+    is_live_llm: false
+  });
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    ApiClient.fetchLLMStatus().then((st) => st && setLlmStatus(st));
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -250,9 +259,15 @@ export default function NavigatorScreen({ onNavigate }) {
           <div>
             <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>AI Healthcare Navigator</span>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                MedGemma & IRDAI Verified
-              </span>
+              {llmStatus.is_live_llm ? (
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {llmStatus.active_provider}: {llmStatus.model_id}
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
+                  Offline Rule Engine (No API Key Configured)
+                </span>
+              )}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Personalized guidance on hospitals, treatment costs, ICD-11 diseases, and health insurance policy wordings.
