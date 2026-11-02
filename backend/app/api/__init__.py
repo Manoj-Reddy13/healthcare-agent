@@ -10,6 +10,7 @@ from app.api.insurers import router as insurers_router
 from app.api.diseases import router as diseases_router
 from app.api.network import router as network_router
 from app.api.calculator import router as calculator_router
+from app.api.intelligence import router as intelligence_router
 
 api_router = APIRouter()
 
@@ -24,3 +25,4 @@ api_router.include_router(insurers_router, tags=["Health Insurance"])
 api_router.include_router(diseases_router, tags=["Diseases & Procedures"])
 api_router.include_router(network_router, tags=["Hospital-Insurance Network"])
 api_router.include_router(calculator_router, tags=["Out of Pocket Calculator"])
+api_router.include_router(intelligence_router, tags=["Healthcare & Insurance Intelligence"])

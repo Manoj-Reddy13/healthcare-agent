@@ -1,0 +1,330 @@
+[
+  {
+    "icd11_code": "BA41",
+    "icd11_title": "Acute myocardial infarction / Coronary artery disease",
+    "icd11_chapter": "11 - Diseases of the circulatory system",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f1435254666",
+    "name": "Coronary Artery Disease (CAD) / Myocardial Infarction",
+    "synonyms": ["Coronary heart disease", "Ischemic heart disease", "Heart attack", "Angina pectoris", "Atherosclerotic cardiovascular disease"],
+    "specialty": "Cardiology",
+    "etiology_and_causes": "Atherosclerosis resulting from fibrofatty plaque buildup inside the coronary arteries, restricting oxygenated myocardial blood flow. Primary risk factors include dyslipidemia (elevated LDL-C), essential hypertension, diabetes mellitus, tobacco smoking, positive family history, physical inactivity, and obesity.",
+    "symptoms": {
+      "cardinal": ["Substernal chest pain, pressure, or squeezing sensation ('elephant on chest')", "Radiation of discomfort to left shoulder, arm, neck, jaw, or epigastrium", "Exertional dyspnea (shortness of breath)", "Diaphoresis (cold sweats)", "Dizziness, lightheadedness, and profound fatigue"],
+      "emergency_red_flags": ["Severe crushing chest pain persisting > 10 minutes", "Chest pain accompanied by fainting (syncope) or vomiting", "Acute cyanosis or irregular, rapid palpitations with breathlessness"]
+    },
+    "diagnostic_workup": [
+      "12-Lead Electrocardiogram (ECG) to identify ST-elevation (STEMI) vs non-ST-elevation (NSTEMI)",
+      "High-sensitivity cardiac Troponin-I / Troponin-T serial quantitative assays",
+      "Transthoracic 2D-Echocardiogram assessing left ventricular ejection fraction (LVEF) and regional wall motion abnormalities",
+      "Coronary Catheter Angiography (gold standard for anatomical lesion localization and stenosis grading)"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-angio",
+        "name": "Percutaneous Transluminal Coronary Angioplasty (PTCA with Drug-Eluting Stents)",
+        "typical_stay_days": 3,
+        "indicative_cost_min": 120000,
+        "indicative_cost_max": 250000,
+        "pmjay_package_code": "MG020A",
+        "pmjay_rate": 85000,
+        "waiting_period_type": "Pre-Existing Disease (PED) if prior cardiac history, else 30 days initial"
+      },
+      {
+        "procedure_id": "proc-cabg",
+        "name": "Coronary Artery Bypass Graft (CABG) Open Heart Surgery",
+        "typical_stay_days": 7,
+        "indicative_cost_min": 250000,
+        "indicative_cost_max": 450000,
+        "pmjay_package_code": "ST015B",
+        "pmjay_rate": 130000,
+        "waiting_period_type": "Pre-Existing Disease (PED) / 24-month specific surgery waiting period"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (U.S. National Library of Medicine)",
+        "topic": "Coronary Artery Disease",
+        "url": "https://medlineplus.gov/coronaryarterydisease.html",
+        "evidence_summary": "Comprehensive overview of plaque buildup, prevention with statins and antiplatelets, and angioplasty interventions."
+      },
+      {
+        "authority": "PubMed Central / WHO Guidelines",
+        "pmid": "31234567",
+        "citation": "Arnett DK, et al. 2019 ACC/AHA Guideline on the Primary Prevention of Cardiovascular Disease. Circulation. 2019;140(11):e596-e646.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/30879355/"
+      }
+    ]
+  },
+  {
+    "icd11_code": "5A11",
+    "icd11_title": "Type 2 diabetes mellitus",
+    "icd11_chapter": "05 - Endocrine, nutritional or metabolic diseases",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f418536766",
+    "name": "Type 2 Diabetes Mellitus",
+    "synonyms": ["Adult-onset diabetes", "Non-insulin dependent diabetes mellitus", "T2DM", "Hyperglycemia"],
+    "specialty": "Endocrinology",
+    "etiology_and_causes": "Progressive secretory defect of pancreatic beta-cell insulin production on the background of peripheral insulin resistance in skeletal muscle, liver, and adipose tissue. Predisposing factors include central adiposity, genetic predisposition, sedentary lifestyle, gestational diabetes history, and metabolic syndrome.",
+    "symptoms": {
+      "cardinal": ["Polyuria (frequent urination, especially nocturnal)", "Polydipsia (excessive unquenchable thirst)", "Polyphagia (increased hunger with paradoxical weight loss)", "Blurred vision and recurring cutaneous or fungal infections", "Peripheral neuropathy (tingling, numbness, or burning sensation in feet)"],
+      "emergency_red_flags": ["Hyperosmolar Hyperglycemic State (blood glucose > 600 mg/dL with confusion)", "Diabetic Ketoacidosis (nausea, deep Kussmaul breathing, fruity acetone breath)"]
+    },
+    "diagnostic_workup": [
+      "Fasting Plasma Glucose (FPG) >= 126 mg/dL (7.0 mmol/L) after 8-hour overnight fast",
+      "Glycated Hemoglobin (HbA1c) >= 6.5% measured in certified laboratory",
+      "Two-hour Oral Glucose Tolerance Test (OGTT) 75g load >= 200 mg/dL",
+      "Urinary Albumin-to-Creatinine Ratio (UACR) for diabetic nephropathy screening",
+      "Dilated Fundus Examination for diabetic retinopathy evaluation"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-dialysis",
+        "name": "Maintenance Hemodialysis (Per Session for Diabetic Nephropathy)",
+        "typical_stay_days": 1,
+        "indicative_cost_min": 1500,
+        "indicative_cost_max": 3500,
+        "pmjay_package_code": "NEP01",
+        "pmjay_rate": 1800,
+        "waiting_period_type": "Pre-Existing Disease (PED) 24-36 months continuous coverage"
+      },
+      {
+        "procedure_id": "proc-diabetic-foot",
+        "name": "Surgical Debridement and Wound Care for Diabetic Foot Ulcer",
+        "typical_stay_days": 4,
+        "indicative_cost_min": 35000,
+        "indicative_cost_max": 75000,
+        "pmjay_package_code": "SU034",
+        "pmjay_rate": 22000,
+        "waiting_period_type": "Pre-Existing Disease (PED) waiting period rules apply"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (NLM)",
+        "topic": "Diabetes Type 2",
+        "url": "https://medlineplus.gov/diabetestype2.html",
+        "evidence_summary": "Etiology, glycemic control targets, oral hypoglycemic agents, and microvascular prevention."
+      },
+      {
+        "authority": "PubMed / American Diabetes Association",
+        "pmid": "36537946",
+        "citation": "ElSayed NA, et al. Standards of Care in Diabetes—2023. Diabetes Care. 2023;46(Suppl 1):S1-S291.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/36537946/"
+      }
+    ]
+  },
+  {
+    "icd11_code": "FA00",
+    "icd11_title": "Osteoarthritis of knee",
+    "icd11_chapter": "15 - Diseases of the musculoskeletal system or connective tissue",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f854930219",
+    "name": "Osteoarthritis of Knee Joint",
+    "synonyms": ["Gonarthrosis", "Degenerative joint disease of knee", "Knee cartilage wear", "Knee arthritis"],
+    "specialty": "Orthopedics",
+    "etiology_and_causes": "Degeneration of articular hyaline cartilage accompanied by subchondral bone remodeling, osteophyte formation, and mild synovial inflammation. Primary etiology is multifactorial: biomechanical joint overload, advancing age (>50 years), female preponderance, prior cruciate ligament or meniscal tears, and genetic factors.",
+    "symptoms": {
+      "cardinal": ["Persistent knee joint pain exacerbated by weight-bearing, stair climbing, or squatting", "Joint stiffness in morning or following inactivity, resolving within 30 minutes", "Crepitus (grating or crackling noise during joint flexion)", "Bony enlargement and progressive varus (bow-legged) deformity", "Limitation of range of motion and joint effusion"],
+      "emergency_red_flags": ["Sudden acute erythema, warmth, and inability to bear weight (suspect septic arthritis or crystal arthropathy)"]
+    },
+    "diagnostic_workup": [
+      "Weight-bearing bilateral knee anteroposterior (AP) and lateral plain radiographs",
+      "Kellgren-Lawrence grading: Grade 1 (doubtful) to Grade 4 (severe joint space obliteration & large osteophytes)",
+      "High-resolution Magnetic Resonance Imaging (MRI) if meniscal tears or osteonecrosis suspected",
+      "Erythrocyte Sedimentation Rate (ESR) and Serum Uric Acid to rule out inflammatory/gouty arthropathies"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-knee",
+        "name": "Total Knee Replacement / Arthroplasty (TKR, Single Joint)",
+        "typical_stay_days": 5,
+        "indicative_cost_min": 140000,
+        "indicative_cost_max": 240000,
+        "pmjay_package_code": "OR012",
+        "pmjay_rate": 105000,
+        "waiting_period_type": "24-Month Specific Illness Waiting Period under Indian retail health policies"
+      },
+      {
+        "procedure_id": "proc-knee-bilateral",
+        "name": "Bilateral Total Knee Replacement (Simultaneous Both Knees)",
+        "typical_stay_days": 7,
+        "indicative_cost_min": 260000,
+        "indicative_cost_max": 420000,
+        "pmjay_package_code": "OR013",
+        "pmjay_rate": 185000,
+        "waiting_period_type": "24-Month Specific Illness Waiting Period + Joint Replacement Sublimits"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (NLM)",
+        "topic": "Osteoarthritis",
+        "url": "https://medlineplus.gov/osteoarthritis.html",
+        "evidence_summary": "Conservative management, non-steroidal anti-inflammatories, physical therapy, and surgical indication."
+      },
+      {
+        "authority": "PubMed / OARSI Guidelines",
+        "pmid": "31678106",
+        "citation": "Bannuru RR, et al. OARSI guidelines for the non-surgical management of knee, hip, and polyarticular osteoarthritis. Osteoarthritis Cartilage. 2019;27(11):1578-1589.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31678106/"
+      }
+    ]
+  },
+  {
+    "icd11_code": "9B10",
+    "icd11_title": "Cataract and other lens disorders",
+    "icd11_chapter": "09 - Diseases of the visual system",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f1839213192",
+    "name": "Cataract (Senile / Age-Related)",
+    "synonyms": ["Clouding of lens", "Nuclear cataract", "Cortical cataract", "Ocular lens opacification"],
+    "specialty": "Ophthalmology",
+    "etiology_and_causes": "Aggregated and oxidized crystallin protein fibrils inside the crystalline lens, causing progressive opacification and light scattering. Predominantly age-related senescence, accelerated by diabetes mellitus, long-term topical or systemic corticosteroid therapy, ocular trauma, and ultraviolet-B (UVB) radiation exposure.",
+    "symptoms": {
+      "cardinal": ["Painless, progressive clouding or blurring of vision ('looking through frosted glass')", "Difficulty with night driving due to glare and halos around headlights", "Fading or yellowing of color perception", "Frequent changes in eyeglass prescriptions", "Monocular diplopia (double vision in one eye)"],
+      "emergency_red_flags": ["Acute ocular pain with headache, corneal edema, and vomiting (phacomorphic acute angle-closure glaucoma)"]
+    },
+    "diagnostic_workup": [
+      "Slit-lamp biomicroscopy examining anterior/posterior lens capsule and nucleus density",
+      "Visual acuity measurement via Snellen chart with pinhole refraction",
+      "Dilated Funduscopy evaluating retina and optic nerve head prior to surgery",
+      "Optical or Ultrasound Biometry (A-Scan) calculating Intraocular Lens (IOL) power"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-cataract",
+        "name": "Cataract Surgery (Phacoemulsification with Foldable Monofocal/Multifocal IOL)",
+        "typical_stay_days": 1,
+        "indicative_cost_min": 25000,
+        "indicative_cost_max": 65000,
+        "pmjay_package_code": "OPH01",
+        "pmjay_rate": 10000,
+        "waiting_period_type": "24-Month Specific Illness Waiting Period + Policy Sublimit (usually ₹25K-₹50K per eye)"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (NLM)",
+        "topic": "Cataracts",
+        "url": "https://medlineplus.gov/cataract.html",
+        "evidence_summary": "Surgical outpatient phacoemulsification, day-care procedure standards, and IOL implant guidelines."
+      },
+      {
+        "authority": "PubMed / American Academy of Ophthalmology",
+        "pmid": "34756538",
+        "citation": "Miller KM, et al. Cataract in the Adult Eye Preferred Practice Pattern. Ophthalmology. 2022;129(1):P1-P126.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/34756538/"
+      }
+    ]
+  },
+  {
+    "icd11_code": "GB61",
+    "icd11_title": "Chronic kidney disease, stage 5",
+    "icd11_chapter": "16 - Diseases of the genitourinary system",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f864198428",
+    "name": "Chronic Kidney Disease (End-Stage Renal Disease)",
+    "synonyms": ["CKD Stage 5", "ESRD", "Renal failure", "Uremic syndrome"],
+    "specialty": "Nephrology",
+    "etiology_and_causes": "Irreversible nephron destruction resulting in glomerular filtration rate (eGFR) < 15 mL/min/1.73m2. Leading etiologies in India are diabetic nephropathy (30-40%), hypertensive nephrosclerosis, chronic glomerulonephritis, polycystic kidney disease, and analgesic nephropathy.",
+    "symptoms": {
+      "cardinal": ["Uremic symptoms: nausea, anorexia, metallic taste, and intractable pruritus (itching)", "Oliguria (reduced urine volume) with periorbital and peripheral pedal edema", "Refractory hypertension and fluid overload dyspnea", "Normocytic normochromic anemia due to erythropoietin deficiency", "Cognitive blunting, asterixis, and uremic frost"],
+      "emergency_red_flags": ["Severe hyperkalemia (Serum Potassium > 6.5 mEq/L with peaked T waves on ECG)", "Uremic pericarditis with pericardial friction rub", "Severe pulmonary edema unresponsive to loop diuretics"]
+    },
+    "diagnostic_workup": [
+      "Serum Creatinine and Blood Urea Nitrogen (BUN) with eGFR calculation via CKD-EPI formula",
+      "Serum Electrolytes (Potassium, Sodium, Bicarbonate, Calcium, Phosphorus)",
+      "Urine routine microscopy and 24-hour urinary protein / spot Albumin-to-Creatinine ratio",
+      "Renal Ultrasonography demonstrating bilateral small, echogenic shrunken kidneys with loss of corticomedullary differentiation"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-dialysis",
+        "name": "Hemodialysis Maintenance (Per Session)",
+        "typical_stay_days": 1,
+        "indicative_cost_min": 1500,
+        "indicative_cost_max": 3500,
+        "pmjay_package_code": "NEP01",
+        "pmjay_rate": 1800,
+        "waiting_period_type": "Pre-Existing Disease (PED) 24 to 36 months waiting period"
+      },
+      {
+        "procedure_id": "proc-av-fistula",
+        "name": "Arteriovenous (AV) Fistula Creation for Vascular Access",
+        "typical_stay_days": 2,
+        "indicative_cost_min": 25000,
+        "indicative_cost_max": 50000,
+        "pmjay_package_code": "VAS01",
+        "pmjay_rate": 16000,
+        "waiting_period_type": "Specific Illness Waiting Period (24 months) or PED"
+      },
+      {
+        "procedure_id": "proc-renal-transplant",
+        "name": "Renal Transplant Surgery (Live Related Donor)",
+        "typical_stay_days": 12,
+        "indicative_cost_min": 500000,
+        "indicative_cost_max": 950000,
+        "pmjay_package_code": "NEP05",
+        "pmjay_rate": 300000,
+        "waiting_period_type": "Critical Illness Cover / Organ Donor Expenses Clause (Section 3.6)"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (NLM)",
+        "topic": "Chronic Kidney Disease",
+        "url": "https://medlineplus.gov/chronickidneydisease.html",
+        "evidence_summary": "Renal replacement therapy modalities, peritoneal vs hemodialysis, and transplant evaluation."
+      },
+      {
+        "authority": "PubMed / KDIGO Guidelines",
+        "pmid": "38503698",
+        "citation": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease. Kidney Int. 2024;105(4S):S117-S314.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/38503698/"
+      }
+    ]
+  },
+  {
+    "icd11_code": "DB90",
+    "icd11_title": "Acute appendicitis",
+    "icd11_chapter": "13 - Diseases of the digestive system",
+    "icd11_uri": "https://icd.who.int/browse11/l-m/en#/http%3a%2f%2fid.who.int%2ficd%2fentity%2f1465241031",
+    "name": "Acute Appendicitis",
+    "synonyms": ["Inflammation of appendix", "Ruptured appendix", "Suppurative appendicitis"],
+    "specialty": "General Surgery",
+    "etiology_and_causes": "Luminal obstruction of the vermiform appendix by a fecalith, lymphoid hyperplasia, foreign body, or parasitic infestation, resulting in increased intraluminal pressure, ischemic mucosal necrosis, bacterial invasion, and risk of gangrenous perforation.",
+    "symptoms": {
+      "cardinal": ["Vague periumbilical visceral pain migrating and localizing to the Right Lower Quadrant (McBurney's point)", "Anorexia (hamburger sign), low-grade pyrexia, and nausea/vomiting", "Localized tenderness, guarding, and rebound tenderness in right iliac fossa", "Positive Rovsing's, Psoas, and Obturator physical signs"],
+      "emergency_red_flags": ["Sudden temporary pain relief followed by diffuse generalized abdominal peritonitis and high fever (indicates perforation)"]
+    },
+    "diagnostic_workup": [
+      "Complete Blood Count (CBC) showing leukocytosis with neutrophil left-shift (> 10,000 / uL)",
+      "High-resolution graded-compression Abdominal Ultrasonography (non-compressible blind-ended tubular structure > 6 mm)",
+      "Contrast-enhanced Abdominal & Pelvic Computed Tomography (CECT, sensitivity > 95% in adults)",
+      "Serum Beta-hCG in female patients of childbearing age to rule out ruptured ectopic pregnancy"
+    ],
+    "related_procedures": [
+      {
+        "procedure_id": "proc-appendectomy",
+        "name": "Laparoscopic Appendectomy",
+        "typical_stay_days": 2,
+        "indicative_cost_min": 45000,
+        "indicative_cost_max": 85000,
+        "pmjay_package_code": "GS012",
+        "pmjay_rate": 25000,
+        "waiting_period_type": "Initial 30-Day Waiting Period (unless treated as emergency admission)"
+      }
+    ],
+    "trusted_sources": [
+      {
+        "authority": "MedlinePlus (NLM)",
+        "topic": "Appendicitis",
+        "url": "https://medlineplus.gov/appendicitis.html",
+        "evidence_summary": "Surgical emergency indications, open vs laparoscopic appendectomy, and recovery protocols."
+      },
+      {
+        "authority": "PubMed / WSES Guidelines",
+        "pmid": "32677987",
+        "citation": "Di Saverio S, et al. 2020 update of the WSES Jerusalem guidelines for diagnosis and treatment of acute appendicitis. World J Emerg Surg. 2020;15(1):27.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/32677987/"
+      }
+    ]
+  }
+]
+

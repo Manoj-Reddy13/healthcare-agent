@@ -18,8 +18,7 @@ import {
   Save,
   Share2,
   ShieldCheck,
-  Sparkles,
-  Star
+  Sparkles
 } from 'lucide-react';
 import { useHealthcare } from '../context/HealthcareContext';
 import { formatINR, formatINRCompact } from '../utils/formatters';
@@ -46,44 +45,40 @@ export default function PlanScreen({ onNavigate }) {
     {
       id: "hosp-hyd-01",
       name: "Apollo Hospitals, Jubilee Hills",
-      city: "Hyderabad",
-      type: "Private",
+      city: plan.city || "Hyderabad",
+      type: "Private Multi-Specialty",
       address: "Road No 72, Jubilee Hills, Hyderabad - 500033",
-      estCost: "₹1.8L – ₹2.5L",
+      estCost: "₹1.5L – ₹2.4L",
       accreditation: ["NABH", "JCI"],
-      rating: 4.7,
       schemes: ["PM-JAY", "Aarogyasri"],
       phone: "+91 40 2360 7777"
     },
     {
       id: "hosp-hyd-02",
       name: "Nizam's Institute of Medical Sciences (NIMS)",
-      city: "Hyderabad",
-      type: "Government",
+      city: plan.city || "Hyderabad",
+      type: "Government Autonomous",
       address: "Punjagutta, Hyderabad - 500082",
-      estCost: "₹1.2L – ₹1.8L",
+      estCost: "₹85K – ₹1.4L",
       accreditation: ["NABH"],
-      rating: 4.4,
       schemes: ["PM-JAY", "Aarogyasri", "CGHS"],
       phone: "+91 40 2348 9000"
     },
     {
       id: "hosp-hyd-03",
-      name: "KIMS Hospitals, Secunderabad",
-      city: "Hyderabad",
-      type: "Private",
-      address: "Minister Road, Begumpet, Secunderabad - 500003",
-      estCost: "₹1.5L – ₹2.2L",
+      name: "Care Hospitals, Banjara Hills",
+      city: plan.city || "Hyderabad",
+      type: "Private Tertiary Care",
+      address: "Road No 1, Banjara Hills, Hyderabad - 500034",
+      estCost: "₹1.3L – ₹2.1L",
       accreditation: ["NABH"],
-      rating: 4.5,
-      schemes: ["Aarogyasri"],
-      phone: "+91 40 4488 5000"
+      schemes: ["Aarogyasri", "Cashless Networks"],
+      phone: "+91 40 6165 6565"
     }
   ];
 
   return (
     <div className="space-y-6 animate-fade-in pb-16 print:p-0">
-      
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-slate-900 text-white text-xs font-semibold shadow-2xl flex items-center gap-2 border border-slate-700 animate-slide-up">
@@ -92,17 +87,17 @@ export default function PlanScreen({ onNavigate }) {
         </div>
       )}
 
-      {/* 1. Header with Title & Action Buttons (Matching Reference Image) */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm print:hidden">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800 shrink-0">
-            <ClipboardList className="w-6 h-6" />
+      {/* 1. Header with Title & Action Buttons (Matching Screen 6 in Reference Image) */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs print:hidden">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-200 shrink-0">
+            <ClipboardList className="w-6 h-6 stroke-[2.2]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               My Healthcare Plan
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               A personalized summary with hospital options, estimated cost, scheme coverage and next steps.
             </p>
           </div>
@@ -112,17 +107,17 @@ export default function PlanScreen({ onNavigate }) {
         <div className="flex items-center gap-2.5">
           <button
             onClick={handlePrintPDF}
-            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition-colors shadow-xs"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <Download className="w-4 h-4 text-teal-600" />
             <span>Download PDF</span>
           </button>
 
           <button
             onClick={handleSavePlan}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
           >
-            <Save className="w-3.5 h-3.5" />
+            <Save className="w-4 h-4" />
             <span>Save Plan</span>
           </button>
         </div>
@@ -134,132 +129,129 @@ export default function PlanScreen({ onNavigate }) {
         <p className="text-xs text-slate-600 mt-1">Generated: {new Date().toLocaleDateString()} | Regional Benchmark Summary</p>
       </div>
 
-      {/* 2. Main Two-Column Layout (Matching Reference Image) */}
+      {/* 2. Main Two-Column Layout (Matching Screen 6 in Reference Image) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
         {/* Left Column: Plan Summary Card (lg:col-span-5) */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="lg:col-span-5 bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-emerald-600" />
-              <h2 className="font-bold text-sm uppercase tracking-wider text-slate-900 dark:text-white">
+              <FileText className="w-4 h-4 text-teal-600" />
+              <h2 className="font-extrabold text-xs uppercase tracking-wider text-slate-900">
                 Plan Summary
               </h2>
             </div>
             <button
-              onClick={() => onNavigate('estimator')}
-              className="text-xs font-bold text-emerald-600 hover:underline"
+              onClick={() => onNavigate && onNavigate('estimator')}
+              className="text-xs font-bold text-teal-700 hover:underline"
             >
               Change Treatment
             </button>
           </div>
 
           {/* Key Value Rows */}
-          <div className="space-y-4 text-xs">
-            
+          <div className="space-y-3.5 text-xs">
             {/* Treatment */}
             <div className="flex items-start justify-between gap-3">
               <span className="text-slate-400 font-bold">Treatment:</span>
-              <span className="font-extrabold text-slate-900 dark:text-white text-right sm:text-sm">
-                {plan.treatment}
+              <span className="font-black text-slate-900 text-right sm:text-sm">
+                {plan.treatment || "Angioplasty"}
               </span>
             </div>
 
             {/* Location */}
             <div className="flex items-start justify-between gap-3">
               <span className="text-slate-400 font-bold">Location:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                {plan.city}, TS
+              <span className="font-bold text-slate-800">
+                {plan.city || "Hyderabad"}, TS
               </span>
             </div>
 
             {/* Room Tier */}
             <div className="flex items-start justify-between gap-3">
               <span className="text-slate-400 font-bold">Room Category:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                {plan.roomType} ({plan.stayDays} days stay)
+              <span className="font-bold text-slate-800">
+                {plan.roomType || "Semi-Private"} ({plan.stayDays || 3} days stay)
               </span>
             </div>
 
             {/* Estimated Cost */}
-            <div className="flex items-start justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-start justify-between gap-3 pt-2.5 border-t border-slate-100">
               <span className="text-slate-400 font-bold">Estimated Cost:</span>
-              <span className="font-black text-slate-900 dark:text-white text-sm">
-                {formatINR(plan.costMin)} – {formatINR(plan.costMax)}
+              <span className="font-black text-slate-900 text-sm">
+                {formatINR(plan.costMin || 120000)} – {formatINR(plan.costMax || 250000)}
               </span>
             </div>
 
             {/* Recommended Scheme */}
             <div className="flex items-start justify-between gap-3">
               <span className="text-slate-400 font-bold">Recommended Scheme:</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400 text-right">
-                {plan.schemeName}
+              <span className="font-black text-teal-700 text-right">
+                {plan.schemeName || "PM-JAY / Aarogyasri"}
               </span>
             </div>
 
             {/* Potential Coverage */}
             <div className="flex items-start justify-between gap-3">
               <span className="text-slate-400 font-bold">Potential Coverage:</span>
-              <span className="font-black text-emerald-600 dark:text-emerald-400">
-                Up to {formatINR(plan.coverageLimit)}
+              <span className="font-black text-emerald-700">
+                Up to {formatINR(plan.coverageLimit || 500000)} (PM-JAY)
               </span>
             </div>
 
             {/* Estimated Out-of-Pocket (Highlight Box) */}
-            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200 flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">
+                <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider block">
                   Estimated Out-of-Pocket
                 </span>
-                <span className="text-lg font-black text-emerald-700 dark:text-emerald-400">
-                  {formatINR(plan.estimatedOutOfPocketMin)} – {formatINR(plan.estimatedOutOfPocketMax)}
+                <span className="text-lg font-black text-teal-900">
+                  {formatINR(plan.estimatedOutOfPocketMin || 0)} – {formatINR(plan.estimatedOutOfPocketMax || 50000)}
                 </span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-1 rounded bg-white dark:bg-slate-900 text-emerald-700 border border-emerald-300">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white text-teal-800 border border-teal-200 shadow-xs">
                 Cashless Tier
               </span>
             </div>
-
           </div>
 
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[11px] text-slate-500 leading-snug">
+          <div className="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 leading-snug border border-slate-100">
             * Note: Out-of-pocket costs represent non-covered medical consumables or voluntary room rent differentials under network rules.
           </div>
         </div>
 
         {/* Right Column: Recommended Hospitals (lg:col-span-7) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-emerald-600" />
-              <h2 className="font-bold text-sm uppercase tracking-wider text-slate-900 dark:text-white">
-                Recommended Hospitals in {plan.city}
+              <Building2 className="w-4 h-4 text-teal-600" />
+              <h2 className="font-extrabold text-xs uppercase tracking-wider text-slate-900">
+                Recommended Hospitals in {plan.city || "Hyderabad"}
               </h2>
             </div>
             <button
-              onClick={() => onNavigate('hospitals')}
-              className="text-xs font-bold text-emerald-600 hover:underline"
+              onClick={() => onNavigate && onNavigate('hospitals')}
+              className="text-xs font-bold text-teal-700 hover:underline"
             >
               View Full Directory
             </button>
           </div>
 
-          {/* Hospital Cards List (Matching Reference Image) */}
+          {/* Hospital Cards List (Matching Screen 6 in Reference Image) */}
           <div className="space-y-3">
             {RECOMMENDED_HOSPITALS.map((hosp) => (
               <div
                 key={hosp.id}
-                className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-teal-400 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                    <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">
                       {hosp.name}
                     </h3>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
                       {hosp.type}
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
                       {hosp.accreditation[0]}
                     </span>
                   </div>
@@ -270,61 +262,67 @@ export default function PlanScreen({ onNavigate }) {
 
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-slate-400 font-medium">Est. Cost:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{hosp.estCost}</span>
+                    <span className="font-black text-slate-800">{hosp.estCost}</span>
                     <span className="text-slate-300">•</span>
-                    <span className="text-emerald-600 font-bold">{hosp.schemes.join(', ')}</span>
+                    <span className="text-teal-700 font-bold">{hosp.schemes.join(', ')}</span>
                   </div>
                 </div>
 
                 {/* Booking Trigger */}
                 <div className="shrink-0 flex items-center gap-2 w-full sm:w-auto justify-end">
                   <button
-                    onClick={() => setSelectedHospitalForBooking(hosp)}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs"
+                    onClick={() => onNavigate && onNavigate('network')}
+                    className="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-white text-slate-700 font-bold text-xs transition-colors"
                   >
-                    Book Demo
+                    Check TPA
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (setSelectedHospitalForBooking) setSelectedHospitalForBooking(hosp);
+                      showToast(`Selected ${hosp.name} for your admission care plan.`);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-colors shadow-xs"
+                  >
+                    Select Hospital
                   </button>
                 </div>
               </div>
             ))}
           </div>
-
         </div>
-
       </div>
 
       {/* 3. Preparation Checklist & Next Steps */}
-      <section className="bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-          <h2 className="font-bold text-sm sm:text-base uppercase tracking-wider text-slate-900 dark:text-white">
+      <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <CheckCircle2 className="w-5 h-5 text-teal-600" />
+          <h2 className="font-extrabold text-xs sm:text-sm uppercase tracking-wider text-slate-900">
             Patient Preparation & Empanelment Checklist
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
           {/* Step 1: Identity & Card Verification */}
           <div
             onClick={() => toggleChecklist('identityVerified')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-4 rounded-xl border cursor-pointer transition-all ${
               plan.checklist?.identityVerified
-                ? 'bg-emerald-50/70 border-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800'
-                : 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+                ? 'bg-teal-50/70 border-teal-400'
+                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
+              <span className="text-[10px] font-bold uppercase text-teal-800">
                 Step 1
               </span>
               <input
                 type="checkbox"
                 checked={plan.checklist?.identityVerified || false}
                 onChange={() => {}}
-                className="w-4 h-4 text-emerald-600 rounded"
+                className="w-4 h-4 text-teal-600 rounded"
               />
             </div>
-            <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+            <h4 className="font-bold text-xs text-slate-900 mb-1">
               Identity Verification
             </h4>
             <p className="text-[11px] text-slate-500 leading-snug">
@@ -335,24 +333,24 @@ export default function PlanScreen({ onNavigate }) {
           {/* Step 2: Diagnostics */}
           <div
             onClick={() => toggleChecklist('diagnosticsReady')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-4 rounded-xl border cursor-pointer transition-all ${
               plan.checklist?.diagnosticsReady
-                ? 'bg-emerald-50/70 border-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800'
-                : 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+                ? 'bg-teal-50/70 border-teal-400'
+                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
+              <span className="text-[10px] font-bold uppercase text-teal-800">
                 Step 2
               </span>
               <input
                 type="checkbox"
                 checked={plan.checklist?.diagnosticsReady || false}
                 onChange={() => {}}
-                className="w-4 h-4 text-emerald-600 rounded"
+                className="w-4 h-4 text-teal-600 rounded"
               />
             </div>
-            <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+            <h4 className="font-bold text-xs text-slate-900 mb-1">
               Clinical Reports
             </h4>
             <p className="text-[11px] text-slate-500 leading-snug">
@@ -363,24 +361,24 @@ export default function PlanScreen({ onNavigate }) {
           {/* Step 3: Helpdesk Visit */}
           <div
             onClick={() => toggleChecklist('deskConsulted')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-4 rounded-xl border cursor-pointer transition-all ${
               plan.checklist?.deskConsulted
-                ? 'bg-emerald-50/70 border-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800'
-                : 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+                ? 'bg-teal-50/70 border-teal-400'
+                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
+              <span className="text-[10px] font-bold uppercase text-teal-800">
                 Step 3
               </span>
               <input
                 type="checkbox"
                 checked={plan.checklist?.deskConsulted || false}
                 onChange={() => {}}
-                className="w-4 h-4 text-emerald-600 rounded"
+                className="w-4 h-4 text-teal-600 rounded"
               />
             </div>
-            <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+            <h4 className="font-bold text-xs text-slate-900 mb-1">
               Mitra Helpdesk Visit
             </h4>
             <p className="text-[11px] text-slate-500 leading-snug">
@@ -391,35 +389,32 @@ export default function PlanScreen({ onNavigate }) {
           {/* Step 4: Pre-authorization */}
           <div
             onClick={() => toggleChecklist('preAuthSubmitted')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-4 rounded-xl border cursor-pointer transition-all ${
               plan.checklist?.preAuthSubmitted
-                ? 'bg-emerald-50/70 border-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800'
-                : 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+                ? 'bg-teal-50/70 border-teal-400'
+                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
+              <span className="text-[10px] font-bold uppercase text-teal-800">
                 Step 4
               </span>
               <input
                 type="checkbox"
                 checked={plan.checklist?.preAuthSubmitted || false}
                 onChange={() => {}}
-                className="w-4 h-4 text-emerald-600 rounded"
+                className="w-4 h-4 text-teal-600 rounded"
               />
             </div>
-            <h4 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+            <h4 className="font-bold text-xs text-slate-900 mb-1">
               Cashless Pre-Auth
             </h4>
             <p className="text-[11px] text-slate-500 leading-snug">
               Hospital uploads package pre-authorization to the government insurance portal.
             </p>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 }
-

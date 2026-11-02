@@ -85,40 +85,40 @@ export default function AppointmentModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5"
+        className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center">
-              <CalendarCheck className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-200">
+              <CalendarCheck className="w-6 h-6 stroke-[2.2]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+              <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Book Simulated Appointment
               </h2>
-              <p className="text-xs text-slate-400">{hospital.name}</p>
+              <p className="text-xs text-slate-500">{hospital.name}</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Academic Safety Warning Banner */}
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl flex items-start gap-2.5">
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5">
           <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
+          <div className="text-[11px] text-amber-900 leading-snug">
             <strong>Educational Demonstration Only:</strong> This workflow demonstrates AI agent action-taking. No real slot is reserved at {hospital.name}.
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function AppointmentModal() {
             )}
 
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 dark:text-slate-300">
+              <label className="font-bold text-slate-700">
                 Patient Full Name
               </label>
               <input
@@ -141,12 +141,12 @@ export default function AppointmentModal() {
                 required
                 value={formData.patient_name}
                 onChange={(e) => setFormData({ ...formData, patient_name: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-slate-700 dark:text-slate-300">
+              <label className="font-bold text-slate-700">
                 Contact Phone Number
               </label>
               <input
@@ -154,28 +154,31 @@ export default function AppointmentModal() {
                 required
                 value={formData.patient_phone}
                 onChange={(e) => setFormData({ ...formData, patient_phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">
+                <label className="font-bold text-slate-700">
                   Clinical Specialty
                 </label>
                 <select
                   value={formData.specialty}
                   onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white"
                 >
                   {hospital.specialties?.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
+                  {(!hospital.specialties || hospital.specialties.length === 0) && (
+                    <option value="General Medicine">General Medicine</option>
+                  )}
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">
+                <label className="font-bold text-slate-700">
                   Preferred Date
                 </label>
                 <input
@@ -183,21 +186,21 @@ export default function AppointmentModal() {
                   required
                   value={formData.preferred_date}
                   onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white"
                 />
               </div>
             </div>
 
             {/* Mandatory User Confirmation Checkbox */}
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start gap-2.5">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5">
               <input
                 type="checkbox"
                 id="user_confirmed"
                 checked={formData.user_confirmed}
                 onChange={(e) => setFormData({ ...formData, user_confirmed: e.target.checked })}
-                className="w-4 h-4 text-emerald-600 rounded mt-0.5"
+                className="w-4 h-4 text-teal-600 rounded mt-0.5"
               />
-              <label htmlFor="user_confirmed" className="text-[11px] text-slate-600 dark:text-slate-300 cursor-pointer leading-snug">
+              <label htmlFor="user_confirmed" className="text-[11px] text-slate-700 cursor-pointer leading-snug">
                 I understand this is an educational simulation demonstrating AI booking intent and does not book an actual physical slot.
               </label>
             </div>
@@ -206,7 +209,7 @@ export default function AppointmentModal() {
               <button
                 type="submit"
                 disabled={loading || !formData.user_confirmed}
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
+                className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarCheck className="w-4 h-4" />}
                 <span>Confirm Simulated Registration</span>
@@ -216,36 +219,35 @@ export default function AppointmentModal() {
         ) : (
           /* Confirmation Receipt */
           <div className="space-y-4 text-xs">
-            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-950 space-y-2">
+              <div className="flex items-center gap-2 font-bold text-sm text-teal-900">
+                <CheckCircle2 className="w-5 h-5 text-teal-600" />
                 <span>Simulated Request Registered</span>
               </div>
               <p className="text-[11px] leading-relaxed">
-                Confirmation ID: <code className="bg-emerald-100 dark:bg-emerald-900 px-1 py-0.5 rounded font-bold">{result.confirmation_id}</code>
+                Confirmation ID: <code className="bg-teal-100 text-teal-900 px-1.5 py-0.5 rounded font-mono font-bold">{result.confirmation_id}</code>
               </p>
-              <div className="text-[11px] space-y-1 text-emerald-800 dark:text-emerald-300 pt-1">
+              <div className="text-[11px] space-y-1 text-slate-700 pt-1">
                 <div>Hospital: <strong>{result.hospital_name}</strong></div>
                 <div>Department: <strong>{result.specialty}</strong></div>
                 <div>Date: <strong>{result.preferred_date}</strong></div>
               </div>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[11px] text-slate-500">
+            <div className="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-600 border border-slate-100">
               {result.instructions || result.message}
             </div>
 
             <div className="flex justify-end">
               <button
                 onClick={handleClose}
-                className="px-5 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700"
+                className="px-5 py-2.5 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 shadow-xs"
               >
                 Close
               </button>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

@@ -845,4 +845,120 @@ export class ApiClient {
     }
     return null;
   }
+
+  // Healthcare & Insurance Intelligence System Endpoints
+  static async medicalExplain(query) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/medical-explain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("medicalExplain failed", e);
+    }
+    return null;
+  }
+
+  static async fetchICD11Diseases(specialty) {
+    try {
+      const url = specialty && specialty !== 'All'
+        ? `${API_BASE_URL}/api/intelligence/diseases?specialty=${encodeURIComponent(specialty)}`
+        : `${API_BASE_URL}/api/intelligence/diseases`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchICD11Diseases failed", e);
+    }
+    return [];
+  }
+
+  static async fetchICD11DiseaseDetail(codeOrName) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/diseases/${encodeURIComponent(codeOrName)}`, {
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchICD11DiseaseDetail failed", e);
+    }
+    return null;
+  }
+
+  static async fetchPolicyClauses({ policyId, category, verifiedOnly } = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (policyId && policyId !== 'all') params.append("policy_id", policyId);
+      if (category && category !== 'all') params.append("category", category);
+      if (verifiedOnly) params.append("verified_only", "true");
+      const url = `${API_BASE_URL}/api/intelligence/policy-clauses${params.toString() ? `?${params.toString()}` : ''}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("fetchPolicyClauses failed", e);
+    }
+    return [];
+  }
+
+  static async verifyPolicyClause(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/policy-clauses/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("verifyPolicyClause failed", e);
+    }
+    return null;
+  }
+
+  static async ragRetrievePolicyClauses(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/rag-retrieve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("ragRetrievePolicyClauses failed", e);
+    }
+    return [];
+  }
+
+  static async evaluateInsuranceEligibility(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/evaluate-eligibility`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("evaluateInsuranceEligibility failed", e);
+    }
+    return null;
+  }
+
+  static async matchEndToEnd(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/end-to-end-match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("matchEndToEnd failed", e);
+    }
+    return null;
+  }
 }

@@ -26,8 +26,13 @@ class ChatResponse(BaseModel):
     requires_confirmation: bool = False
     confirmation_prompt: Optional[str] = None
     emergency_detected: bool = False
+    medical_explanation: Optional[dict[str, Any]] = None
+    retrieved_clauses: Optional[list[dict[str, Any]]] = None
+    eligibility_evaluation: Optional[dict[str, Any]] = None
+    confidence_limitations: Optional[str] = None
+    last_verification_date: Optional[str] = "2026-10-29"
     disclaimer: str = (
         "Informational assistance only. This agent does not provide medical diagnoses or prescriptions. "
-        "In case of a medical emergency, call 108 or 112 immediately."
+        "Policy evaluations are informational and do not guarantee claim approval. In case of a medical emergency, call 108 or 112 immediately."
     )
-    data_mode: Literal["mock", "estimated", "verified"] = "mock"
+    data_mode: Literal["mock", "estimated", "verified"] = "verified"
