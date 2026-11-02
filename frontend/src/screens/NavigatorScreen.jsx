@@ -28,7 +28,8 @@ import {
   Sparkles,
   Stethoscope,
   User,
-  Wrench
+  Wrench,
+  X
 } from 'lucide-react';
 import { ApiClient } from '../api/client';
 import { useHealthcare } from '../context/HealthcareContext';
@@ -122,6 +123,52 @@ export default function NavigatorScreen({ onNavigate }) {
     model_id: '',
     is_live_llm: false
   });
+
+  // LLM Key Configuration Modal State
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState('gemini');
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [modelIdInput, setModelIdInput] = useState('gemini-2.5-flash');
+  const [configLoading, setConfigLoading] = useState(false);
+  const [configError, setConfigError] = useState('');
+  const [configSuccess, setConfigSuccess] = useState('');
+
+  const handleProviderSelect = (prov) => {
+    setSelectedProvider(prov);
+    if (prov === 'gemini') setModelIdInput('gemini-2.5-flash');
+    else if (prov === 'groq') setModelIdInput('llama-3.3-70b-versatile');
+    else if (prov === 'openai') setModelIdInput('gpt-4o-mini');
+  };
+
+  const handleSaveLLM = async (e) => {
+    e.preventDefault();
+    if (!apiKeyInput.trim()) {
+      setConfigError("Please enter your API key.");
+      return;
+    }
+    setConfigLoading(true);
+    setConfigError('');
+    setConfigSuccess('');
+    try {
+      const res = await ApiClient.configureLLM({
+        provider: selectedProvider,
+        apiKey: apiKeyInput.trim(),
+        modelId: modelIdInput.trim()
+      });
+      setConfigSuccess(res.message || "Successfully connected to real LLM!");
+      const updated = await ApiClient.fetchLLMStatus();
+      if (updated) setLlmStatus(updated);
+      setTimeout(() => {
+        setShowConfigModal(false);
+        setConfigSuccess('');
+        setApiKeyInput('');
+      }, 1400);
+    } catch (err) {
+      setConfigError(err.message || "Failed to validate API key with the provider.");
+    } finally {
+      setConfigLoading(false);
+    }
+  };
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -275,26 +322,67 @@ export default function NavigatorScreen({ onNavigate }) {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setMessages([
-              {
-                id: 'msg-welcome-new',
-                sender: 'agent',
-                text: "Chat cleared. What procedure, hospital, clinical condition, or health insurance policy can I assist you with in " + city + "?",
-                hospitals: [],
-                cost_estimate: null,
-                schemes: [],
-                tool_calls: [],
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              }
-            ]);
-          }}
-          className="text-xs text-slate-400 hover:text-slate-700 transition-colors font-semibold px-3 py-1.5 rounded-xl hover:bg-slate-100 border border-slate-200"
-        >
-          Reset Conversation
-        </button>
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            onClick={() => setShowConfigModal(true)}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all shadow-xs ${
+              llmStatus.is_live_llm
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                : 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{llmStatus.is_live_llm ? 'LLM Settings' : 'Connect Real LLM'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setMessages([
+                {
+                  id: 'msg-welcome-new',
+                  sender: 'agent',
+                  text: "Chat cleared. What procedure, hospital, clinical condition, or health insurance policy can I assist you with in " + city + "?",
+                  hospitals: [],
+                  cost_estimate: null,
+                  schemes: [],
+                  tool_calls: [],
+                  time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+              ]);
+            }}
+            className="text-xs text-slate-500 hover:text-slate-700 transition-colors font-semibold px-3 py-1.5 rounded-xl hover:bg-slate-100 border border-slate-200"
+          >
+            Reset
+          </button>
+        </div>
       </div>
+
+      {/* Proactive Real LLM Banner */}
+      {!llmStatus.is_live_llm && (
+        <div className="bg-gradient-to-r from-amber-50 via-teal-50 to-emerald-50 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span>Power CareNav with a Real Neural LLM</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950 uppercase tracking-wider">Free & Fast</span>
+              </p>
+              <p className="text-xs text-slate-600 mt-0.5">
+                The agent is currently using local clinical rules. Connect your free Google Gemini API key or Groq key for full conversational reasoning and function calling.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowConfigModal(true)}
+            className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1.5"
+          >
+            <Wrench className="w-3.5 h-3.5" />
+            Connect API Key
+          </button>
+        </div>
+      )}
 
       {/* 2. Messages Conversation Area */}
       <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 overflow-y-auto space-y-6">
@@ -777,6 +865,180 @@ export default function NavigatorScreen({ onNavigate }) {
           </button>
         </form>
       </div>
+
+      {/* 4. Real LLM Configuration Modal */}
+      {showConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Connect Real LLM Provider</h3>
+                  <p className="text-xs text-slate-500">Enable neural reasoning, conversational chat & live tool calling</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setShowConfigModal(false); setConfigError(''); setConfigSuccess(''); }}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSaveLLM} className="p-6 space-y-5 overflow-y-auto">
+              {/* Provider Selection Tabs */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-2">Select LLM Provider</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleProviderSelect('gemini')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                      selectedProvider === 'gemini'
+                        ? 'bg-teal-50 border-teal-500 text-teal-800 shadow-xs ring-1 ring-teal-500'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    Google Gemini
+                    <span className="block text-[10px] font-medium text-emerald-600 mt-0.5">Free Tier</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleProviderSelect('groq')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                      selectedProvider === 'groq'
+                        ? 'bg-teal-50 border-teal-500 text-teal-800 shadow-xs ring-1 ring-teal-500'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    Groq
+                    <span className="block text-[10px] font-medium text-emerald-600 mt-0.5">Ultra Fast</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleProviderSelect('openai')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                      selectedProvider === 'openai'
+                        ? 'bg-teal-50 border-teal-500 text-teal-800 shadow-xs ring-1 ring-teal-500'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    OpenAI
+                    <span className="block text-[10px] font-medium text-slate-400 mt-0.5">GPT-4o mini</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Instructions / Key Link */}
+              <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs space-y-1">
+                {selectedProvider === 'gemini' && (
+                  <>
+                    <p className="font-bold text-slate-800">Get your free Google Gemini API Key:</p>
+                    <p className="text-slate-600">
+                      1. Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-teal-600 font-bold hover:underline inline-flex items-center gap-0.5">Google AI Studio <ExternalLink className="w-3 h-3" /></a>
+                    </p>
+                    <p className="text-slate-600">2. Sign in with any Google account and click <strong>Create API Key</strong>.</p>
+                  </>
+                )}
+                {selectedProvider === 'groq' && (
+                  <>
+                    <p className="font-bold text-slate-800">Get your free Groq API Key:</p>
+                    <p className="text-slate-600">
+                      1. Visit <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" className="text-teal-600 font-bold hover:underline inline-flex items-center gap-0.5">Groq Console <ExternalLink className="w-3 h-3" /></a>
+                    </p>
+                    <p className="text-slate-600">2. Sign in and create a free key (starts with <code>gsk_...</code>).</p>
+                  </>
+                )}
+                {selectedProvider === 'openai' && (
+                  <>
+                    <p className="font-bold text-slate-800">OpenAI API Key:</p>
+                    <p className="text-slate-600">
+                      Use your API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-teal-600 font-bold hover:underline inline-flex items-center gap-0.5">platform.openai.com <ExternalLink className="w-3 h-3" /></a> (starts with <code>sk-...</code>).
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* API Key Input */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">
+                  {selectedProvider === 'gemini' ? 'Google Gemini API Key' : (selectedProvider === 'groq' ? 'Groq API Key' : 'OpenAI API Key')}
+                </label>
+                <input
+                  type="password"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder={selectedProvider === 'gemini' ? 'AIzaSy...' : (selectedProvider === 'groq' ? 'gsk_...' : 'sk-...')}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-xs"
+                />
+              </div>
+
+              {/* Model ID Input */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">Model ID</label>
+                <input
+                  type="text"
+                  value={modelIdInput}
+                  onChange={(e) => setModelIdInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-xs"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {selectedProvider === 'gemini' && 'Default: gemini-2.5-flash (or gemini-1.5-flash)'}
+                  {selectedProvider === 'groq' && 'Default: llama-3.3-70b-versatile (or llama-3.1-8b-instant)'}
+                  {selectedProvider === 'openai' && 'Default: gpt-4o-mini (or gpt-4o)'}
+                </p>
+              </div>
+
+              {/* Feedback Alerts */}
+              {configError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{configError}</span>
+                </div>
+              )}
+              {configSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>{configSuccess}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowConfigModal(false); setConfigError(''); setConfigSuccess(''); }}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={configLoading || !apiKeyInput.trim()}
+                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-2"
+                >
+                  {configLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Validating Key...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Test & Save Connection</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

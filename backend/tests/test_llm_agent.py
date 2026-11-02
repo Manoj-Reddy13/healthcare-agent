@@ -236,3 +236,39 @@ def test_orchestrator_mocked_gemini_tool_call():
         assert resp.is_live_llm is True
         assert "BA41" in resp.answer
 
+def test_conversational_greeting_does_not_dump_hospitals():
+    """Verify that casual greetings return natural introductory dialogue without dumping hospital cards."""
+    resp = AgentOrchestrator.process_message("Hello there, how are you?")
+    assert len(resp.hospitals) == 0
+    assert "CareNav AI" in resp.answer
+    assert "Find Accredited Hospitals" in resp.answer or "Estimate Treatment Costs" in resp.answer
+
+def test_openai_compatible_provider_function_call():
+    """Verify OpenAICompatibleLLMProvider tool call parsing."""
+    from app.services.llm_service import OpenAICompatibleLLMProvider
+    provider = OpenAICompatibleLLMProvider(api_key="mock-groq-key", provider_name="groq")
+    mock_post_resp = MagicMock()
+    mock_post_resp.status_code = 200
+    mock_post_resp.json.return_value = {
+        "choices": [{
+            "message": {
+                "content": None,
+                "tool_calls": [{
+                    "function": {
+                        "name": "estimate_treatment_cost",
+                        "arguments": '{"procedure": "Angioplasty", "city": "Hyderabad"}'
+                    }
+                }]
+            }
+        }]
+    }
+
+    with patch("httpx.Client.post", return_value=mock_post_resp):
+        res = provider.chat(message="Estimate cost of angioplasty in Hyderabad", history=[])
+        assert len(res.tool_calls) == 1
+        assert res.tool_calls[0].name == "estimate_treatment_cost"
+        assert res.tool_calls[0].args["procedure"] == "Angioplasty"
+        assert res.provider == "groq"
+        assert res.is_live_llm is True
+
+

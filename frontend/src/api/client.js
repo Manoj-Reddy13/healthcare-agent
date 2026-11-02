@@ -84,6 +84,25 @@ export class ApiClient {
     };
   }
 
+  static async configureLLM({ provider, apiKey, modelId, baseUrl }) {
+    const res = await fetch(`${API_BASE_URL}/api/llm/configure`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        provider,
+        api_key: apiKey,
+        model_id: modelId,
+        base_url: baseUrl
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || data.message || "Failed to configure LLM provider");
+    }
+    return data;
+  }
+
   static async sendChatMessage(message, sessionId = "demo-session") {
     try {
       const res = await fetch(`${API_BASE_URL}/api/chat`, {

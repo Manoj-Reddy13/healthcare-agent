@@ -12,6 +12,7 @@ from pydantic import BaseModel,ConfigDict,Field
 from app.api.treatment_references import app_factory as reference_factory
 from app.services.demo_data_service import DemoService,build_demo_database,NOTICE
 from app.services.llm_service import LLMService
+from app.api.llm import router as llm_router
 
 BRIDGE_LOCK=threading.Lock()
 
@@ -143,6 +144,7 @@ def create_demo_app(database=None,frontend_dist=None):
             'is_live_llm': info['is_live_llm'],
             'notice':NOTICE
         }
+    app.include_router(llm_router, prefix="/api")
     dist=Path(frontend_dist) if frontend_dist else BACKEND_ROOT/'.local'/'demo-ui'/'dist'
     if (dist/'index.html').is_file():
         app.router.routes=[r for r in app.router.routes if not(isinstance(r,APIRoute) and r.path=='/')]
