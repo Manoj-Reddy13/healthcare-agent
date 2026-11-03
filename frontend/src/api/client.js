@@ -1,6 +1,23 @@
 import { MOCK_HOSPITALS, MOCK_SCHEMES } from "./mockData";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const resolveApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl !== "." && envUrl !== "/") {
+    return envUrl.replace(/\/+$/, "");
+  }
+  if (typeof window !== "undefined") {
+    // If running under Vite dev server (port 5173), route to backend on the same hostname
+    if (window.location.port === "5173") {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    // If served directly by backend or proxy (e.g. port 8000), use same-origin origin
+    // This avoids cross-origin preflights and localhost vs 127.0.0.1 DNS resolution mismatches
+    return window.location.origin;
+  }
+  return "http://127.0.0.1:8000";
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 const FORCE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 export class ApiClient {
@@ -85,22 +102,40 @@ export class ApiClient {
   }
 
   static async configureLLM({ provider, apiKey, modelId, baseUrl }) {
-    const res = await fetch(`${API_BASE_URL}/api/llm/configure`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        provider,
-        api_key: apiKey,
-        model_id: modelId,
-        base_url: baseUrl
-      }),
-      signal: AbortSignal.timeout(15000),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || data.message || "Failed to configure LLM provider");
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/llm/configure`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider,
+          api_key: apiKey,
+          model_id: modelId,
+          base_url: baseUrl
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned unexpected response (${res.status} ${res.statusText})`);
+      }
+
+      if (!res.ok) {
+        const errorDetail = data?.detail || data?.message || data?.error || `HTTP ${res.status} ${res.statusText}`;
+        throw new Error(errorDetail);
+      }
+      return data;
+    } catch (err) {
+      if (err.name === "AbortError" || err.name === "TimeoutError") {
+        throw new Error("Connection timed out while validating with the AI provider. Please verify your internet connection.");
+      }
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        throw new Error(`Backend service unreachable at ${API_BASE_URL}. Please ensure the CareNav server is running on port 8000.`);
+      }
+      throw err;
     }
-    return data;
   }
 
   static async sendChatMessage(message, sessionId = "demo-session") {

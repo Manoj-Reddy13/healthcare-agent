@@ -976,6 +976,10 @@ export default function NavigatorScreen({ onNavigate }) {
                   placeholder={selectedProvider === 'gemini' ? 'AIzaSy...' : (selectedProvider === 'groq' ? 'gsk_...' : 'sk-...')}
                   className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-xs"
                 />
+                <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                  <span>Key is validated directly by backend; never saved in browser localStorage.</span>
+                </p>
               </div>
 
               {/* Model ID Input */}
@@ -996,15 +1000,15 @@ export default function NavigatorScreen({ onNavigate }) {
 
               {/* Feedback Alerts */}
               {configError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                  <span>{configError}</span>
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start gap-2.5 break-words">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+                  <span className="leading-relaxed">{configError}</span>
                 </div>
               )}
               {configSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                  <span>{configSuccess}</span>
+                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-start gap-2.5 break-words">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+                  <span className="leading-relaxed">{configSuccess}</span>
                 </div>
               )}
 

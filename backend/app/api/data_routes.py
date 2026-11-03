@@ -27,7 +27,14 @@ def create_app(database=None,policies=None):
     ids=[p['scheme_id'] for p in policies]
     if len(ids)!=len(set(ids)):raise ValueError('Duplicate configured policy ID')
     app=FastAPI(title='Member 3 Healthcare Data API',version='0.3.0',description='Independent evidence-aware data services. No chat or booking implementation.')
-    app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:5173','http://127.0.0.1:5173'],allow_methods=['GET','POST'],allow_headers=['Content-Type'])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=['http://localhost:5173','http://127.0.0.1:5173','http://localhost:8000','http://127.0.0.1:8000','http://localhost:3000','http://127.0.0.1:3000'],
+        allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*']
+    )
 
     def read(sql,parameters=()):
         try:

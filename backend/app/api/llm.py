@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, HTTPException
+import httpx
 from pydantic import BaseModel
 
 from app.services.llm_service import LLMService, GeminiLLMProvider, OpenAICompatibleLLMProvider
@@ -19,6 +20,52 @@ class LLMConfigRequest(BaseModel):
     model_id: Optional[str] = None
     base_url: Optional[str] = None
 
+def parse_gemini_error(status_code: int, err_text: str, model_id: str) -> str:
+    """Map raw Google Gemini API errors to clear, actionable diagnostics without leaking keys."""
+    try:
+        err_data = json.loads(err_text)
+        error_obj = err_data.get("error", {})
+        msg = error_obj.get("message", "")
+        status = error_obj.get("status", "")
+        reason = ""
+        for d in error_obj.get("details", []):
+            if isinstance(d, dict) and "reason" in d:
+                reason = d["reason"]
+
+        if reason == "API_KEY_INVALID" or "API key not valid" in msg or "API_KEY_INVALID" in err_text:
+            return "Invalid Gemini API key. Please check your key at Google AI Studio (aistudio.google.com/app/apikey)."
+        if status == "PERMISSION_DENIED" or status_code == 403:
+            return f"Permission denied for model '{model_id}'. Your project or key does not have access to this model."
+        if status == "NOT_FOUND" or status_code == 404 or "not found" in msg.lower():
+            return f"Model '{model_id}' was not found. Try 'gemini-1.5-flash' or verify available models in Google AI Studio."
+        if status == "RESOURCE_EXHAUSTED" or status_code == 429:
+            return "Google Gemini API quota exceeded or rate limit reached for this account."
+        if msg:
+            return f"Google Gemini Error: {msg}"
+    except Exception:
+        pass
+    return f"Google Gemini Error ({status_code}): {err_text[:160]}"
+
+def parse_openai_error(status_code: int, err_text: str, provider: str, model_id: str) -> str:
+    """Map raw OpenAI/Groq errors to clear diagnostics."""
+    try:
+        err_data = json.loads(err_text)
+        error_obj = err_data.get("error", {})
+        msg = error_obj.get("message", "")
+        code = error_obj.get("code", "")
+        if code == "invalid_api_key" or "invalid api key" in msg.lower() or status_code == 401:
+            return f"Invalid {provider.title()} API key. Please verify your credentials."
+        if status_code == 404 or "model_not_found" in code or "does not exist" in msg.lower():
+            return f"Model '{model_id}' does not exist or is not enabled on {provider.title()}."
+        if status_code == 429 or "rate_limit_exceeded" in code or "quota" in msg.lower():
+            return f"{provider.title()} rate limit or quota exceeded."
+        if msg:
+            return f"{provider.title()} Error: {msg}"
+    except Exception:
+        pass
+    return f"{provider.title()} Error ({status_code}): {err_text[:160]}"
+
+
 @router.get("/llm/status", summary="Check active LLM provider, model ID, and API key configuration")
 def get_llm_status():
     """
@@ -28,6 +75,7 @@ def get_llm_status():
     - Whether actual live LLM inference is enabled
     """
     return LLMService.get_status()
+
 
 @router.post("/llm/configure", summary="Dynamically validate and connect an LLM provider at runtime")
 def configure_llm(req: LLMConfigRequest):
@@ -42,21 +90,57 @@ def configure_llm(req: LLMConfigRequest):
     if not api_key and provider != "ollama":
         raise HTTPException(status_code=400, detail="API key cannot be empty.")
 
+    # Mask key for safe logging
+    masked_key = (api_key[:4] + "..." + api_key[-4:]) if len(api_key) > 8 else "configured"
+    logger.info(f"Configuring LLM provider '{provider}' with model '{model_id}' (key: {masked_key})")
+
+    actual_model = model_id
+
     # 1. Validate with Live Test Probe
     if provider == "gemini":
         test_model = model_id or "gemini-2.5-flash"
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{test_model}:generateContent?key={api_key}"
+
+        try:
+            with httpx.Client(timeout=12.0) as http_client:
+                res = http_client.post(
+                    gemini_url,
+                    headers={"Content-Type": "application/json"},
+                    json={"contents": [{"parts": [{"text": "Hello, ping."}]}]}
+                )
+                if res.status_code != 200:
+                    err_text = res.text
+                    # If model not found, try gemini-1.5-flash automatically
+                    if res.status_code == 404 and test_model != "gemini-1.5-flash":
+                        fb_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                        fb_res = http_client.post(
+                            fb_url,
+                            headers={"Content-Type": "application/json"},
+                            json={"contents": [{"parts": [{"text": "Hello, ping."}]}]}
+                        )
+                        if fb_res.status_code == 200:
+                            test_model = "gemini-1.5-flash"
+                        else:
+                            raise HTTPException(status_code=400, detail=parse_gemini_error(res.status_code, err_text, test_model))
+                    else:
+                        raise HTTPException(status_code=400, detail=parse_gemini_error(res.status_code, err_text, test_model))
+
+        except httpx.ConnectTimeout:
+            raise HTTPException(status_code=504, detail="Connection to Google Gemini API timed out (12s). Please verify your internet connection.")
+        except httpx.ConnectError:
+            raise HTTPException(status_code=502, detail="Unable to reach Google Gemini services. Please verify your network connection or firewall.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            sanitized = str(e).replace(api_key, "[REDACTED]")
+            raise HTTPException(status_code=400, detail=f"Google Gemini connection check failed: {sanitized}")
+
+        # Initialize official google-genai Client
         try:
             from google import genai
             client = genai.Client(api_key=api_key)
-            test_resp = client.models.generate_content(
-                model=test_model,
-                contents="Hello, ping."
-            )
-            if not test_resp:
-                raise ValueError("Empty response received from Gemini API.")
         except Exception as e:
-            logger.error(f"Gemini API validation failed: {e}")
-            raise HTTPException(status_code=400, detail=f"Google Gemini key validation failed: {str(e)}")
+            logger.warning(f"google.genai client initialization notice: {e}")
 
         # Update in-memory settings
         settings.LLM_PROVIDER = "gemini"
@@ -75,25 +159,25 @@ def configure_llm(req: LLMConfigRequest):
             "llama-3.3-70b-versatile" if provider == "groq"
             else ("gpt-4o-mini" if provider == "openai" else "llama3")
         )
-        import httpx
         try:
-            with httpx.Client(timeout=15.0) as client:
+            with httpx.Client(timeout=12.0) as client:
                 res = client.post(
                     f"{base_url.rstrip('/')}/chat/completions",
                     headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                     json={"model": test_model, "messages": [{"role": "user", "content": "ping"}], "max_tokens": 5}
                 )
                 if res.status_code != 200:
-                    err_body = res.text
-                    try:
-                        err_json = res.json()
-                        err_body = err_json.get("error", {}).get("message", res.text)
-                    except Exception:
-                        pass
-                    raise ValueError(f"{res.status_code} - {err_body}")
+                    err_msg = parse_openai_error(res.status_code, res.text, provider, test_model)
+                    raise HTTPException(status_code=400, detail=err_msg)
+        except httpx.ConnectTimeout:
+            raise HTTPException(status_code=504, detail=f"Connection to {provider.title()} API timed out (12s).")
+        except httpx.ConnectError:
+            raise HTTPException(status_code=502, detail=f"Unable to reach {provider.title()} API endpoint at {base_url}.")
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.error(f"{provider.title()} API validation failed: {e}")
-            raise HTTPException(status_code=400, detail=f"{provider.title()} key validation failed: {str(e)}")
+            sanitized = str(e).replace(api_key, "[REDACTED]")
+            raise HTTPException(status_code=400, detail=f"{provider.title()} key validation failed: {sanitized}")
 
         settings.LLM_PROVIDER = provider
         if provider == "groq":
@@ -144,9 +228,10 @@ def configure_llm(req: LLMConfigRequest):
     except Exception as ex:
         logger.warning(f"Could not persist .env file: {ex}")
 
+    provider_label = "Google Gemini" if provider == "gemini" else provider.upper()
     return {
         "success": True,
-        "message": f"Successfully connected to {provider.upper()} ({actual_model})!",
+        "message": f"Successfully connected to {provider_label} ({actual_model})!",
         "provider": provider,
         "model_id": actual_model,
         "is_live_llm": True
